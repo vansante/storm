@@ -16,9 +16,9 @@ import (
 
 func TestListIndex(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	err := db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
@@ -150,9 +150,9 @@ func TestListIndex(t *testing.T) {
 
 func TestListIndexReverse(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	err := db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
@@ -192,11 +192,11 @@ func TestListIndexReverse(t *testing.T) {
 
 func TestListIndexAddRemoveID(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
-	db.Bolt.Update(func(tx *bolt.Tx) error {
+	err := db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
 		require.NoError(t, err)
 
@@ -232,15 +232,16 @@ func TestListIndexAddRemoveID(t *testing.T) {
 		require.Equal(t, 0, countItems(t, idx.IndexBucket))
 		return nil
 	})
+	require.NoError(t, err)
 }
 
 func TestListIndexAllRecords(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
-	db.Bolt.Update(func(tx *bolt.Tx) error {
+	err := db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
 		require.NoError(t, err)
 
@@ -309,15 +310,16 @@ func TestListIndexAllRecords(t *testing.T) {
 
 		return nil
 	})
+	require.NoError(t, err)
 }
 
 func TestListIndexRange(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
-	db.Bolt.Update(func(tx *bolt.Tx) error {
+	err := db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
 		require.NoError(t, err)
 
@@ -405,15 +407,16 @@ func TestListIndexRange(t *testing.T) {
 
 		return nil
 	})
+	require.NoError(t, err)
 }
 
 func TestListIndexPrefix(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
-	db.Bolt.Update(func(tx *bolt.Tx) error {
+	err := db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
 		require.NoError(t, err)
 
@@ -480,6 +483,7 @@ func TestListIndexPrefix(t *testing.T) {
 		require.Equal(t, []byte("0"), list[0])
 		return nil
 	})
+	require.NoError(t, err)
 }
 
 func countItems(t *testing.T, bucket *bolt.Bucket) int {

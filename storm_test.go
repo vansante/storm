@@ -23,11 +23,11 @@ func TestNewStorm(t *testing.T) {
 
 	dir, err := os.MkdirTemp(os.TempDir(), "storm")
 	require.NoError(t, err)
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 
 	file := filepath.Join(dir, "storm.db")
 	db, err = Open(file)
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	require.Implements(t, (*Node)(nil), db)
 
@@ -43,7 +43,7 @@ func TestNewStorm(t *testing.T) {
 
 func TestNewStormWithStormOptions(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 
 	dc := new(dummyCodec)
 	db1, _ := Open(filepath.Join(dir, "storm1.db"), BoltOptions(0o660, &bolt.Options{Timeout: 10 * time.Second}), Codec(dc), Root("a", "b"))
@@ -59,7 +59,7 @@ func TestNewStormWithStormOptions(t *testing.T) {
 
 func TestNewStormWithBatch(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 
 	db1, _ := Open(filepath.Join(dir, "storm1.db"), Batch())
 	defer db1.Close()
@@ -79,7 +79,7 @@ func TestNewStormWithBatch(t *testing.T) {
 
 func TestBoltDB(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 	bDB, err := bolt.Open(filepath.Join(dir, "bolt.db"), 0o600, &bolt.Options{Timeout: 10 * time.Second})
 	require.NoError(t, err)
 	// no need to close bolt.DB Storm will take care of it

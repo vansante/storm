@@ -14,8 +14,8 @@ import (
 
 func ExampleRe() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var users []User
 

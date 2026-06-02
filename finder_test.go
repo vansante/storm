@@ -491,7 +491,7 @@ func TestOne(t *testing.T) {
 
 func TestOneNotWritable(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := Open(filepath.Join(dir, "storm.db"))
 
 	err := db.Save(&User{ID: 10, Name: "John"})
@@ -502,7 +502,7 @@ func TestOneNotWritable(t *testing.T) {
 	db, _ = Open(filepath.Join(dir, "storm.db"), BoltOptions(0o660, &bolt.Options{
 		ReadOnly: true,
 	}))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	err = db.Save(&User{ID: 20, Name: "John"})
 	require.Error(t, err)

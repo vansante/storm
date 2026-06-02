@@ -15,9 +15,9 @@ import (
 
 func TestUniqueIndex(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	err := db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
@@ -120,9 +120,9 @@ func TestUniqueIndex(t *testing.T) {
 
 func TestUniqueIndexRange(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
@@ -192,9 +192,9 @@ func TestUniqueIndexRange(t *testing.T) {
 
 func TestUniqueIndexPrefix(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))

@@ -15,7 +15,7 @@ import (
 
 func ExampleDB_Save() {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 
 	type User struct {
 		ID        int    `storm:"id,increment"` // the increment tag will auto-increment integer IDs without existing values.
@@ -28,7 +28,7 @@ func ExampleDB_Save() {
 
 	// Open takes an optional list of options as the last argument.
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"), storm.Codec(gob.Codec))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	user := User{
 		Group:     "staff",
@@ -59,8 +59,8 @@ func ExampleDB_Save() {
 
 func ExampleDB_One() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var user User
 
@@ -84,8 +84,8 @@ func ExampleDB_One() {
 
 func ExampleDB_Find() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var users []User
 	err := db.Find("Group", "staff", &users)
@@ -101,8 +101,8 @@ func ExampleDB_Find() {
 
 func ExampleDB_All() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var users []User
 	err := db.All(&users)
@@ -118,8 +118,8 @@ func ExampleDB_All() {
 
 func ExampleDB_AllByIndex() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var users []User
 	err := db.AllByIndex("CreatedAt", &users)
@@ -135,8 +135,8 @@ func ExampleDB_AllByIndex() {
 
 func ExampleDB_Range() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var users []User
 	err := db.Range("Age", 21, 22, &users)
@@ -152,8 +152,8 @@ func ExampleDB_Range() {
 
 func ExampleLimit() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var users []User
 	err := db.All(&users, storm.Limit(2))
@@ -169,8 +169,8 @@ func ExampleLimit() {
 
 func ExampleSkip() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var users []User
 	err := db.All(&users, storm.Skip(1))
@@ -186,7 +186,7 @@ func ExampleSkip() {
 
 func ExampleUseDB() {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 
 	bDB, err := bolt.Open(filepath.Join(dir, "bolt.db"), 0o600, &bolt.Options{Timeout: 10 * time.Second})
 	if err != nil {
@@ -194,7 +194,7 @@ func ExampleUseDB() {
 	}
 
 	db, _ := storm.Open("", storm.UseDB(bDB))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	err = db.Save(&User{ID: 10})
 	if err != nil {
@@ -211,8 +211,8 @@ func ExampleUseDB() {
 
 func ExampleDB_DeleteStruct() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var user User
 
@@ -230,8 +230,8 @@ func ExampleDB_DeleteStruct() {
 
 func ExampleDB_Begin() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	// both start out with a balance of 10000 cents
 	var account1, account2 Account
@@ -289,8 +289,8 @@ func ExampleDB_Begin() {
 
 func ExampleDB_From() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	// Create some sub buckets to partition the data.
 	privateNotes := db.From("notes", "private")
@@ -349,8 +349,8 @@ func ExampleDB_From() {
 
 func ExampleDB_Drop() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var user User
 
@@ -374,8 +374,8 @@ func ExampleDB_Drop() {
 
 func ExampleNode_PrefixScan() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	// The PrefixScan method is available on both DB and Node.
 	// This example shows the usage on Node.
@@ -429,8 +429,8 @@ func ExampleNode_PrefixScan() {
 
 func ExampleNode_RangeScan() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	// The RangeScan method is available on both DB and Node.
 	// This example shows the usage on Node.

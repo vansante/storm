@@ -19,7 +19,7 @@ func TestProtobuf(t *testing.T) {
 
 func TestSave(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"), storm.Codec(Codec))
 	u1 := SimpleUser{Id: 1, Name: "John"}
 	err := db.Save(&u1)
@@ -32,7 +32,7 @@ func TestSave(t *testing.T) {
 
 func TestGetSet(t *testing.T) {
 	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"), storm.Codec(Codec))
 	err := db.Set("bucket", "key", "value")
 	require.NoError(t, err)
