@@ -273,7 +273,7 @@ func (idx *ListIndex) Prefix(prefix []byte, opts *Options) ([][]byte, error) {
 
 func generatePrefix(value []byte) []byte {
 	prefix := make([]byte, len(value)+2)
-	var i int
+	i := -1
 	for i = range value {
 		prefix[i] = value[i]
 	}
