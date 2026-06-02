@@ -223,7 +223,7 @@ func (n *node) save(tx *bolt.Tx, cfg *structConfig, data any, update bool) error
 			return err
 		}
 		for _, idSaved := range idsSaved {
-			if bytes.Compare(idSaved, id) == 0 {
+			if bytes.Equal(idSaved, id) {
 				found = true
 				break
 			}

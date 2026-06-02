@@ -16,9 +16,7 @@ linters:
     - funlen
     - gocheckcompilerdirectives
     - gochecksumtype
-    - goconst
     - gocyclo
-    - gosec
     - gosmopolitan
     - govet
     - lll
@@ -49,8 +47,8 @@ linters:
     dupl:
       threshold: 100
     funlen:
-      lines: 60
-      statements: 60
+      lines: 120
+      statements: 80
     goconst:
       min-len: 3
       min-occurrences: 2

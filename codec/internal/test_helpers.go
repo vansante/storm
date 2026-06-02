@@ -56,7 +56,7 @@ func equalExportedValues(a, b reflect.Value) bool {
 		return false
 	}
 	switch a.Kind() {
-	case reflect.Ptr, reflect.Interface:
+	case reflect.Pointer, reflect.Interface:
 		if a.IsNil() || b.IsNil() {
 			return a.IsNil() == b.IsNil()
 		}
