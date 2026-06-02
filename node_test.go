@@ -71,7 +71,7 @@ func TestNodeWithCodec(t *testing.T) {
 			Name string `storm:"index"`
 		}
 
-		requireBytesEqual := func(raw []byte, expected interface{}) {
+		requireBytesEqual := func(raw []byte, expected any) {
 			var u User
 			err := gob.Codec.Unmarshal(raw, &u)
 			require.NoError(t, err)

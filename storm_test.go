@@ -92,11 +92,11 @@ func TestBoltDB(t *testing.T) {
 
 type dummyCodec int
 
-func (c dummyCodec) Marshal(v interface{}) ([]byte, error) {
+func (c dummyCodec) Marshal(v any) ([]byte, error) {
 	return []byte("dummy"), nil
 }
 
-func (c dummyCodec) Unmarshal(b []byte, v interface{}) error {
+func (c dummyCodec) Unmarshal(b []byte, v any) error {
 	return nil
 }
 
@@ -129,7 +129,7 @@ func TestToBytes(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, `{"ID":10,"Name":"John"}`, string(b))
 
-	tests := map[interface{}]interface{}{
+	tests := map[any]any{
 		int(-math.MaxInt64):    int64(-math.MaxInt64),
 		int(math.MaxInt64):     int64(math.MaxInt64),
 		int8(-math.MaxInt8):    int8(-math.MaxInt8),
@@ -174,5 +174,5 @@ func createDB(t errorHandler, opts ...func(*Options) error) (*DB, func()) {
 }
 
 type errorHandler interface {
-	Error(args ...interface{})
+	Error(args ...any)
 }

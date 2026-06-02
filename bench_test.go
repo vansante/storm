@@ -11,7 +11,7 @@ func BenchmarkFindWithIndex(b *testing.B) {
 	defer cleanup()
 
 	var users []User
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		var w User
 
 		if i%2 == 0 {
@@ -41,7 +41,7 @@ func BenchmarkFindWithoutIndex(b *testing.B) {
 	defer cleanup()
 
 	var users []User
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		var w User
 
 		if i%2 == 0 {
@@ -71,7 +71,7 @@ func BenchmarkOneWithIndex(b *testing.B) {
 	defer cleanup()
 
 	var u User
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		w := User{Name: fmt.Sprintf("John%d", i), Group: fmt.Sprintf("Staff%d", i)}
 		err := db.Save(&w)
 		if err != nil {
@@ -102,7 +102,7 @@ func BenchmarkOneByID(b *testing.B) {
 	}
 
 	var u User
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		w := User{Name: fmt.Sprintf("John%d", i), Group: fmt.Sprintf("Staff%d", i)}
 		err := db.Save(&w)
 		if err != nil {
@@ -124,7 +124,7 @@ func BenchmarkOneWithoutIndex(b *testing.B) {
 	defer cleanup()
 
 	var u User
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		w := User{Name: "John", Group: fmt.Sprintf("Staff%d", i)}
 		err := db.Save(&w)
 		if err != nil {

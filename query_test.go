@@ -17,7 +17,7 @@ type Score struct {
 func prepareScoreDB(t *testing.T) (*DB, func()) {
 	db, cleanup := createDB(t)
 
-	for i := 0; i < 20; i++ {
+	for i := range 20 {
 		err := db.Save(&Score{
 			Value: i,
 		})
@@ -214,7 +214,7 @@ func TestSelectFindOrderBy(t *testing.T) {
 
 	strs := []string{"e", "b", "d", "a", "c", "d"}
 	ints := []int{2, 3, 5, 4, 2, 1}
-	for i := 0; i < 6; i++ {
+	for i := range 6 {
 		record := T{
 			Str: strs[i],
 			Int: ints[i],
@@ -286,7 +286,7 @@ func TestSelectFindOrderBy(t *testing.T) {
 	err = db.Select().OrderBy("Int").Reverse().Limit(2).Find(&list)
 	require.NoError(t, err)
 	require.Len(t, list, 2)
-	for i := 0; i < 2; i++ {
+	for i := range 2 {
 		require.Equal(t, 5-i, list[i].Int)
 	}
 
@@ -364,7 +364,7 @@ func TestSelectFirstOrderBy(t *testing.T) {
 
 	strs := []string{"e", "b", "a", "c", "d"}
 	ints := []int{2, 3, 1, 4, 5}
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		err := db.Save(&T{
 			Str: strs[i],
 			Int: ints[i],
@@ -428,7 +428,7 @@ func TestSelectDelete(t *testing.T) {
 	require.Equal(t, 0, scores[0].Value)
 	require.Equal(t, 1, scores[1].Value)
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		w := User{ID: i + 1, Name: fmt.Sprintf("John%d", i+1)}
 		err = db.Save(&w)
 		require.NoError(t, err)
@@ -495,7 +495,7 @@ func TestSelectRaw(t *testing.T) {
 	db, cleanup := createDB(t, Codec(json.Codec))
 	defer cleanup()
 
-	for i := 0; i < 20; i++ {
+	for i := range 20 {
 		err := db.Save(&Score{
 			Value: i,
 		})
@@ -523,7 +523,7 @@ func TestSelectEach(t *testing.T) {
 	db, cleanup := createDB(t, Codec(json.Codec))
 	defer cleanup()
 
-	for i := 0; i < 20; i++ {
+	for i := range 20 {
 		err := db.Save(&Score{
 			Value: i,
 		})
@@ -531,7 +531,7 @@ func TestSelectEach(t *testing.T) {
 	}
 
 	i := 0
-	err := db.Select().Each(new(Score), func(record interface{}) error {
+	err := db.Select().Each(new(Score), func(record any) error {
 		s, ok := record.(*Score)
 		require.True(t, ok)
 		require.Equal(t, i, s.Value)
@@ -542,7 +542,7 @@ func TestSelectEach(t *testing.T) {
 	require.Equal(t, 20, i)
 
 	i = 0
-	err = db.Select().Skip(18).Limit(5).Each(new(Score), func(record interface{}) error {
+	err = db.Select().Skip(18).Limit(5).Each(new(Score), func(record any) error {
 		s, ok := record.(*Score)
 		require.True(t, ok)
 		require.Equal(t, i+18, s.Value)

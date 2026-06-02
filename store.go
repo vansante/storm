@@ -13,29 +13,29 @@ import (
 type TypeStore interface {
 	Finder
 	// Init creates the indexes and buckets for a given structure
-	Init(data interface{}) error
+	Init(data any) error
 
 	// ReIndex rebuilds all the indexes of a bucket
-	ReIndex(data interface{}) error
+	ReIndex(data any) error
 
 	// Save a structure
-	Save(data interface{}) error
+	Save(data any) error
 
 	// Update a structure
-	Update(data interface{}) error
+	Update(data any) error
 
 	// UpdateField updates a single field
-	UpdateField(data interface{}, fieldName string, value interface{}) error
+	UpdateField(data any, fieldName string, value any) error
 
 	// Drop a bucket
-	Drop(data interface{}) error
+	Drop(data any) error
 
 	// DeleteStruct deletes a structure from the associated bucket
-	DeleteStruct(data interface{}) error
+	DeleteStruct(data any) error
 }
 
 // Init creates the indexes and buckets for a given structure
-func (n *node) Init(data interface{}) error {
+func (n *node) Init(data any) error {
 	v := reflect.ValueOf(data)
 	cfg, err := extract(&v)
 	if err != nil {
@@ -80,10 +80,10 @@ func (n *node) init(tx *bolt.Tx, cfg *structConfig) error {
 	return nil
 }
 
-func (n *node) ReIndex(data interface{}) error {
+func (n *node) ReIndex(data any) error {
 	ref := reflect.ValueOf(data)
 
-	if !ref.IsValid() || ref.Kind() != reflect.Ptr || ref.Elem().Kind() != reflect.Struct {
+	if !ref.IsValid() || ref.Kind() != reflect.Pointer || ref.Elem().Kind() != reflect.Struct {
 		return ErrStructPtrNeeded
 	}
 
@@ -97,7 +97,7 @@ func (n *node) ReIndex(data interface{}) error {
 	})
 }
 
-func (n *node) reIndex(tx *bolt.Tx, data interface{}, cfg *structConfig) error {
+func (n *node) reIndex(tx *bolt.Tx, data any, cfg *structConfig) error {
 	root := n.WithTransaction(tx)
 	nodes := root.From(cfg.Name).PrefixScan(indexPrefix)
 	bucket := root.GetBucket(tx, cfg.Name)
@@ -119,7 +119,7 @@ func (n *node) reIndex(tx *bolt.Tx, data interface{}, cfg *structConfig) error {
 		return err
 	}
 
-	for i := 0; i < total; i++ {
+	for i := range total {
 		err = root.Select(q.True()).Skip(i).First(data)
 		if err != nil {
 			return err
@@ -135,10 +135,10 @@ func (n *node) reIndex(tx *bolt.Tx, data interface{}, cfg *structConfig) error {
 }
 
 // Save a structure
-func (n *node) Save(data interface{}) error {
+func (n *node) Save(data any) error {
 	ref := reflect.ValueOf(data)
 
-	if !ref.IsValid() || ref.Kind() != reflect.Ptr || ref.Elem().Kind() != reflect.Struct {
+	if !ref.IsValid() || ref.Kind() != reflect.Pointer || ref.Elem().Kind() != reflect.Struct {
 		return ErrStructPtrNeeded
 	}
 
@@ -158,7 +158,7 @@ func (n *node) Save(data interface{}) error {
 	})
 }
 
-func (n *node) save(tx *bolt.Tx, cfg *structConfig, data interface{}, update bool) error {
+func (n *node) save(tx *bolt.Tx, cfg *structConfig, data any, update bool) error {
 	bucket, err := n.CreateBucketIfNotExists(tx, cfg.Name)
 	if err != nil {
 		return err
@@ -255,10 +255,10 @@ func (n *node) save(tx *bolt.Tx, cfg *structConfig, data interface{}, update boo
 }
 
 // Update a structure
-func (n *node) Update(data interface{}) error {
+func (n *node) Update(data any) error {
 	return n.update(data, func(ref *reflect.Value, current *reflect.Value, cfg *structConfig) error {
 		numfield := ref.NumField()
-		for i := 0; i < numfield; i++ {
+		for i := range numfield {
 			f := ref.Field(i)
 			if ref.Type().Field(i).PkgPath != "" {
 				continue
@@ -279,7 +279,7 @@ func (n *node) Update(data interface{}) error {
 }
 
 // UpdateField updates a single field
-func (n *node) UpdateField(data interface{}, fieldName string, value interface{}) error {
+func (n *node) UpdateField(data any, fieldName string, value any) error {
 	return n.update(data, func(ref *reflect.Value, current *reflect.Value, cfg *structConfig) error {
 		f := current.FieldByName(fieldName)
 		if !f.IsValid() {
@@ -304,9 +304,9 @@ func (n *node) UpdateField(data interface{}, fieldName string, value interface{}
 	})
 }
 
-func (n *node) update(data interface{}, fn func(*reflect.Value, *reflect.Value, *structConfig) error) error {
+func (n *node) update(data any, fn func(*reflect.Value, *reflect.Value, *structConfig) error) error {
 	ref := reflect.ValueOf(data)
-	if !ref.IsValid() || ref.Kind() != reflect.Ptr || ref.Elem().Kind() != reflect.Struct {
+	if !ref.IsValid() || ref.Kind() != reflect.Pointer || ref.Elem().Kind() != reflect.Struct {
 		return ErrStructPtrNeeded
 	}
 
@@ -339,7 +339,7 @@ func (n *node) update(data interface{}, fn func(*reflect.Value, *reflect.Value, 
 }
 
 // Drop a bucket
-func (n *node) Drop(data interface{}) error {
+func (n *node) Drop(data any) error {
 	var bucketName string
 
 	v := reflect.ValueOf(data)
@@ -369,10 +369,10 @@ func (n *node) drop(tx *bolt.Tx, bucketName string) error {
 }
 
 // DeleteStruct deletes a structure from the associated bucket
-func (n *node) DeleteStruct(data interface{}) error {
+func (n *node) DeleteStruct(data any) error {
 	ref := reflect.ValueOf(data)
 
-	if !ref.IsValid() || ref.Kind() != reflect.Ptr || ref.Elem().Kind() != reflect.Struct {
+	if !ref.IsValid() || ref.Kind() != reflect.Pointer || ref.Elem().Kind() != reflect.Struct {
 		return ErrStructPtrNeeded
 	}
 

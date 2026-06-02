@@ -40,7 +40,7 @@ type structConfig struct {
 }
 
 func extract(s *reflect.Value, mi ...*structConfig) (*structConfig, error) {
-	if s.Kind() == reflect.Ptr {
+	if s.Kind() == reflect.Pointer {
 		e := s.Elem()
 		s = &e
 	}
@@ -66,7 +66,7 @@ func extract(s *reflect.Value, mi ...*structConfig) (*structConfig, error) {
 	}
 
 	numFields := s.NumField()
-	for i := 0; i < numFields; i++ {
+	for i := range numFields {
 		field := typ.Field(i)
 		value := s.Field(i)
 
@@ -109,9 +109,9 @@ func extractField(value *reflect.Value, field *reflect.StructField, m *structCon
 			IncrementStart: 1,
 		}
 
-		tags := strings.Split(tag, ",")
+		tags := strings.SplitSeq(tag, ",")
 
-		for _, tag := range tags {
+		for tag := range tags {
 			switch tag {
 			case "id":
 				f.IsID = true
@@ -119,7 +119,7 @@ func extractField(value *reflect.Value, field *reflect.StructField, m *structCon
 			case tagUniqueIdx, tagIdx:
 				f.Index = tag
 			case tagInline:
-				if value.Kind() == reflect.Ptr {
+				if value.Kind() == reflect.Pointer {
 					e := value.Elem()
 					value = &e
 				}

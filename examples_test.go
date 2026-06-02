@@ -440,7 +440,7 @@ func ExampleNode_RangeScan() {
 	// Partition the notes in one bucket per month.
 	for i := 2013; i <= 2016; i++ {
 		for j := 1; j <= 12; j++ {
-			for k := 0; k < 3; k++ {
+			for k := range 3 {
 				// Must left-pad the month so it is sortable.
 				bucket := notes.From(fmt.Sprintf("%d%02d", i, j))
 				noteID := fmt.Sprintf("%d-%d", j, k)
@@ -506,7 +506,7 @@ func prepareDB() (string, *storm.DB) {
 		}
 	}
 
-	for i := int64(0); i < 10; i++ {
+	for range int64(10) {
 		account := Account{Amount: 10000}
 
 		err := db.Save(&account)

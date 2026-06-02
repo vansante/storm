@@ -15,7 +15,7 @@ func TestFind(t *testing.T) {
 	db, cleanup := createDB(t)
 	defer cleanup()
 
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		w := User{Name: "John", ID: i + 1, Slug: fmt.Sprintf("John%d", i+1)}
 
 		if i%2 == 0 {
@@ -119,7 +119,7 @@ func TestFindNil(t *testing.T) {
 	}
 
 	t1 := time.Now()
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		now := time.Now()
 		var u User
 
@@ -157,7 +157,7 @@ func TestFindIntIndex(t *testing.T) {
 		Score uint64 `storm:"index"`
 	}
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		w := Score{Score: uint64(i % 3)}
 		err := db.Save(&w)
 		require.NoError(t, err)
@@ -178,7 +178,7 @@ func TestAllByIndex(t *testing.T) {
 	db, cleanup := createDB(t)
 	defer cleanup()
 
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		w := User{Name: "John", ID: i + 1, Slug: fmt.Sprintf("John%d", i+1), DateOfBirth: time.Now().Add(-time.Duration(i*10) * time.Minute)}
 		err := db.Save(&w)
 		require.NoError(t, err)
@@ -294,7 +294,7 @@ func TestAll(t *testing.T) {
 	db, cleanup := createDB(t)
 	defer cleanup()
 
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		w := User{Name: "John", ID: i + 1, Slug: fmt.Sprintf("John%d", i+1), DateOfBirth: time.Now().Add(-time.Duration(i*10) * time.Minute)}
 		err := db.Save(&w)
 		require.NoError(t, err)
@@ -360,7 +360,7 @@ func TestCount(t *testing.T) {
 	db, cleanup := createDB(t)
 	defer cleanup()
 
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		w := User{Name: "John", ID: i + 1, Slug: fmt.Sprintf("John%d", i+1), DateOfBirth: time.Now().Add(-time.Duration(i*10) * time.Minute)}
 		err := db.Save(&w)
 		require.NoError(t, err)
@@ -425,7 +425,7 @@ func TestOne(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, u, v)
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		w := IndexedNameUser{Name: "John", ID: i + 1, Group: "staff"}
 		err = db.Save(&w)
 		require.NoError(t, err)
@@ -523,7 +523,7 @@ func TestRange(t *testing.T) {
 	db, cleanup := createDB(t)
 	defer cleanup()
 
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		w := User{
 			Name:        "John",
 			ID:          i + 1,
@@ -621,7 +621,7 @@ func TestPrefix(t *testing.T) {
 	db, cleanup := createDB(t)
 	defer cleanup()
 
-	for i := 0; i < 50; i++ {
+	for i := range 50 {
 		w := User{
 			ID: i + 1,
 		}
