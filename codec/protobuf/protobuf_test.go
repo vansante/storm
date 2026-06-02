@@ -1,7 +1,6 @@
 package protobuf
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -19,7 +18,7 @@ func TestProtobuf(t *testing.T) {
 }
 
 func TestSave(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
 	defer os.RemoveAll(dir)
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"), storm.Codec(Codec))
 	u1 := SimpleUser{Id: 1, Name: "John"}
@@ -32,7 +31,7 @@ func TestSave(t *testing.T) {
 }
 
 func TestGetSet(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
 	defer os.RemoveAll(dir)
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"), storm.Codec(Codec))
 	err := db.Set("bucket", "key", "value")

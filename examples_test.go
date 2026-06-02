@@ -2,7 +2,6 @@ package storm_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -15,7 +14,7 @@ import (
 )
 
 func ExampleDB_Save() {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
 	defer os.RemoveAll(dir)
 
 	type User struct {
@@ -186,7 +185,7 @@ func ExampleSkip() {
 }
 
 func ExampleUseDB() {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
 	defer os.RemoveAll(dir)
 
 	bDB, err := bolt.Open(filepath.Join(dir, "bolt.db"), 0o600, &bolt.Options{Timeout: 10 * time.Second})
@@ -426,7 +425,6 @@ func ExampleNode_PrefixScan() {
 	// Bucket 201603
 	// Bucket 201603
 	// Notes in March: 3
-
 }
 
 func ExampleNode_RangeScan() {
@@ -490,7 +488,7 @@ type Note struct {
 }
 
 func prepareDB() (string, *storm.DB) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
 
 	for i, name := range []string{"John", "Eric", "Dilbert"} {

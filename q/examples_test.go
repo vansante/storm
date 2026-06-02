@@ -2,7 +2,6 @@ package q_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -43,7 +42,7 @@ type User struct {
 }
 
 func prepareDB() (string, *storm.DB) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
 
 	for i, name := range []string{"John", "Norm", "Donald", "Eric", "Dilbert"} {

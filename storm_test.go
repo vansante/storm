@@ -3,7 +3,6 @@ package storm
 import (
 	"bytes"
 	"encoding/binary"
-	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
@@ -22,7 +21,7 @@ func TestNewStorm(t *testing.T) {
 	require.Error(t, err)
 	require.Nil(t, db)
 
-	dir, err := ioutil.TempDir(os.TempDir(), "storm")
+	dir, err := os.MkdirTemp(os.TempDir(), "storm")
 	require.NoError(t, err)
 	defer os.RemoveAll(dir)
 
@@ -43,7 +42,7 @@ func TestNewStorm(t *testing.T) {
 }
 
 func TestNewStormWithStormOptions(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
 	defer os.RemoveAll(dir)
 
 	dc := new(dummyCodec)
@@ -59,7 +58,7 @@ func TestNewStormWithStormOptions(t *testing.T) {
 }
 
 func TestNewStormWithBatch(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
 	defer os.RemoveAll(dir)
 
 	db1, _ := Open(filepath.Join(dir, "storm1.db"), Batch())
@@ -79,7 +78,7 @@ func TestNewStormWithBatch(t *testing.T) {
 }
 
 func TestBoltDB(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
 	defer os.RemoveAll(dir)
 	bDB, err := bolt.Open(filepath.Join(dir, "bolt.db"), 0o600, &bolt.Options{Timeout: 10 * time.Second})
 	require.NoError(t, err)
@@ -159,7 +158,7 @@ func TestToBytes(t *testing.T) {
 }
 
 func createDB(t errorHandler, opts ...func(*Options) error) (*DB, func()) {
-	dir, err := ioutil.TempDir(os.TempDir(), "storm")
+	dir, err := os.MkdirTemp(os.TempDir(), "storm")
 	if err != nil {
 		t.Error(err)
 	}

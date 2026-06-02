@@ -2,7 +2,6 @@ package storm
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -491,7 +490,7 @@ func TestOne(t *testing.T) {
 }
 
 func TestOneNotWritable(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
 	defer os.RemoveAll(dir)
 	db, _ := Open(filepath.Join(dir, "storm.db"))
 
