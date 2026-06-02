@@ -1,6 +1,7 @@
 package storm
 
 import (
+	"errors"
 	"reflect"
 	"sort"
 	"time"
@@ -478,7 +479,7 @@ func (d *deleteSink) add(i *item) error {
 
 		err = idx.RemoveID(i.k)
 		if err != nil {
-			if err == index.ErrNotFound {
+			if errors.Is(err, index.ErrNotFound) {
 				return ErrNotFound
 			}
 			return err

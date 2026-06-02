@@ -1,6 +1,7 @@
 package storm
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -99,7 +100,7 @@ func (n *node) one(tx *bolt.Tx, bucketName, fieldName string, cfg *structConfig,
 	if !skipIndex {
 		idx, err := getIndex(bucket, cfg.Fields[fieldName].Index, fieldName)
 		if err != nil {
-			if err == index.ErrNotFound {
+			if errors.Is(err, index.ErrNotFound) {
 				return ErrNotFound
 			}
 			return err
@@ -185,7 +186,7 @@ func (n *node) find(tx *bolt.Tx, bucketName, fieldName string, cfg *structConfig
 
 	list, err := idx.All(val, opts)
 	if err != nil {
-		if err == index.ErrNotFound {
+		if errors.Is(err, index.ErrNotFound) {
 			return ErrNotFound
 		}
 		return err
@@ -265,7 +266,7 @@ func (n *node) allByIndex(tx *bolt.Tx, fieldName string, cfg *structConfig, ref 
 
 	list, err := idx.AllRecords(opts)
 	if err != nil {
-		if err == index.ErrNotFound {
+		if errors.Is(err, index.ErrNotFound) {
 			return ErrNotFound
 		}
 		return err
@@ -303,11 +304,11 @@ func (n *node) All(to any, options ...func(*index.Options)) error {
 	}
 
 	err := query.Find(to)
-	if err != nil && err != ErrNotFound {
+	if err != nil && !errors.Is(err, ErrNotFound) {
 		return err
 	}
 
-	if err == ErrNotFound {
+	if errors.Is(err, ErrNotFound) {
 		ref := reflect.ValueOf(to)
 		results := reflect.MakeSlice(reflect.Indirect(ref).Type(), 0, 0)
 		reflect.Indirect(ref).Set(results)

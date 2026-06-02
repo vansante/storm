@@ -2,6 +2,7 @@ package storm
 
 import (
 	"bytes"
+	"errors"
 	"reflect"
 
 	"github.com/vansante/storm/v3/index"
@@ -239,7 +240,7 @@ func (n *node) save(tx *bolt.Tx, cfg *structConfig, data any, update bool) error
 
 		err = idx.Add(value, id)
 		if err != nil {
-			if err == index.ErrAlreadyExists {
+			if errors.Is(err, index.ErrAlreadyExists) {
 				return ErrAlreadyExists
 			}
 			return err
@@ -409,7 +410,7 @@ func (n *node) deleteStruct(tx *bolt.Tx, cfg *structConfig, id []byte) error {
 
 		err = idx.RemoveID(id)
 		if err != nil {
-			if err == index.ErrNotFound {
+			if errors.Is(err, index.ErrNotFound) {
 				return ErrNotFound
 			}
 			return err

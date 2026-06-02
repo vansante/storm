@@ -22,7 +22,7 @@ func (n *node) PrefixScan(prefix string) []Node {
 
 	var nodes []Node
 
-	n.readTx(func(tx *bolt.Tx) error {
+	_ = n.readTx(func(tx *bolt.Tx) error {
 		nodes = n.prefixScan(tx, prefix)
 		return nil
 	})
@@ -60,7 +60,7 @@ func (n *node) RangeScan(minVal, maxVal string) []Node {
 
 	var nodes []Node
 
-	n.readTx(func(tx *bolt.Tx) error {
+	_ = n.readTx(func(tx *bolt.Tx) error {
 		nodes = n.rangeScan(tx, minVal, maxVal)
 		return nil
 	})

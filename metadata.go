@@ -28,7 +28,11 @@ func newMeta(b *bolt.Bucket, n Node) (*meta, error) {
 		return nil, err
 	}
 
-	m.Put([]byte(metaCodec), []byte(n.Codec().Name()))
+	err = m.Put([]byte(metaCodec), []byte(n.Codec().Name()))
+	if err != nil {
+		return nil, err
+	}
+
 	return &meta{
 		node:   n,
 		bucket: m,
