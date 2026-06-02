@@ -11,7 +11,7 @@ import (
 )
 
 func TestProtobuf(t *testing.T) {
-	u1 := SimpleUser{Id: 1, Name: "John"}
+	u1 := SimpleUser{Id: 1, Name: "John", Age: 42}
 	u2 := SimpleUser{}
 	internal.RoundtripTester(t, Codec, &u1, &u2)
 	require.True(t, u1.Id == u2.Id)
