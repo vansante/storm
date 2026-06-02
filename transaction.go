@@ -1,6 +1,10 @@
 package storm
 
-import bolt "go.etcd.io/bbolt"
+import (
+	"errors"
+
+	bolterrors "go.etcd.io/bbolt/errors"
+)
 
 // Tx is a transaction.
 type Tx interface {
@@ -30,7 +34,7 @@ func (n *node) Rollback() error {
 	}
 
 	err := n.tx.Rollback()
-	if err == bolt.ErrTxClosed {
+	if errors.Is(err, bolterrors.ErrTxClosed) {
 		return ErrNotInTransaction
 	}
 
@@ -44,7 +48,7 @@ func (n *node) Commit() error {
 	}
 
 	err := n.tx.Commit()
-	if err == bolt.ErrTxClosed {
+	if errors.Is(err, bolterrors.ErrTxClosed) {
 		return ErrNotInTransaction
 	}
 

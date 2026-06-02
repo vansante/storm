@@ -2,6 +2,7 @@ package storm
 
 import (
 	"bytes"
+	"errors"
 	"reflect"
 
 	"github.com/vansante/storm/v3/index"
@@ -222,7 +223,7 @@ func (n *node) save(tx *bolt.Tx, cfg *structConfig, data any, update bool) error
 			return err
 		}
 		for _, idSaved := range idsSaved {
-			if bytes.Compare(idSaved, id) == 0 {
+			if bytes.Equal(idSaved, id) {
 				found = true
 				break
 			}
@@ -239,7 +240,7 @@ func (n *node) save(tx *bolt.Tx, cfg *structConfig, data any, update bool) error
 
 		err = idx.Add(value, id)
 		if err != nil {
-			if err == index.ErrAlreadyExists {
+			if errors.Is(err, index.ErrAlreadyExists) {
 				return ErrAlreadyExists
 			}
 			return err
@@ -280,7 +281,7 @@ func (n *node) Update(data any) error {
 
 // UpdateField updates a single field
 func (n *node) UpdateField(data any, fieldName string, value any) error {
-	return n.update(data, func(ref *reflect.Value, current *reflect.Value, cfg *structConfig) error {
+	return n.update(data, func(_ *reflect.Value, current *reflect.Value, cfg *structConfig) error {
 		f := current.FieldByName(fieldName)
 		if !f.IsValid() {
 			return ErrNotFound
@@ -409,7 +410,7 @@ func (n *node) deleteStruct(tx *bolt.Tx, cfg *structConfig, id []byte) error {
 
 		err = idx.RemoveID(id)
 		if err != nil {
-			if err == index.ErrNotFound {
+			if errors.Is(err, index.ErrNotFound) {
 				return ErrNotFound
 			}
 			return err

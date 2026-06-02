@@ -1,0 +1,82 @@
+version: "2"
+run:
+  issues-exit-code: 1
+  tests: false
+linters:
+  enable:
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - contextcheck
+    - dogsled
+    - durationcheck
+    - errchkjson
+    - errorlint
+    - funlen
+    - gocheckcompilerdirectives
+    - gochecksumtype
+    - gocyclo
+    - gosmopolitan
+    - govet
+    - lll
+    - loggercheck
+    - makezero
+    - misspell
+    - musttag
+    - nakedret
+    - nilerr
+    - nilnesserr
+    - noctx
+    - protogetter
+    - reassign
+    - recvcheck
+    - revive
+    - rowserrcheck
+    - spancheck
+    - staticcheck
+    - sqlclosecheck
+    - testifylint
+    - unconvert
+    - unparam
+    - unused
+    - zerologlint
+  disable:
+    - exhaustive
+  settings:
+    dupl:
+      threshold: 100
+    funlen:
+      lines: 120
+      statements: 80
+    goconst:
+      min-len: 3
+      min-occurrences: 2
+    gocyclo:
+      min-complexity: 60
+    lll:
+      line-length: 160
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - path: node.go
+        linters:
+          - recvcheck
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofumpt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

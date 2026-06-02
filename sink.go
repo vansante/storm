@@ -1,6 +1,7 @@
 package storm
 
 import (
+	"errors"
 	"reflect"
 	"sort"
 	"time"
@@ -148,9 +149,8 @@ func (s *sorter) compareValue(left reflect.Value, right reflect.Value) int {
 				if lok && rok {
 					if lt.Before(rt) {
 						return -1
-					} else {
-						return 1
 					}
+					return 1
 				}
 			}
 		}
@@ -479,7 +479,7 @@ func (d *deleteSink) add(i *item) error {
 
 		err = idx.RemoveID(i.k)
 		if err != nil {
-			if err == index.ErrNotFound {
+			if errors.Is(err, index.ErrNotFound) {
 				return ErrNotFound
 			}
 			return err
@@ -529,7 +529,7 @@ func (c *countSink) bucketName() string {
 	return reflect.Indirect(c.ref).Type().Name()
 }
 
-func (c *countSink) add(i *item) error {
+func (c *countSink) add(_ *item) error {
 	c.counter++
 	return nil
 }

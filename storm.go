@@ -1,8 +1,11 @@
+// Package storm is a wrapper around bbolt that provides indexed key/value storage
+// with support for typed buckets, queries and transactions.
 package storm
 
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"time"
 
 	"github.com/vansante/storm/v3/codec"
@@ -88,7 +91,7 @@ func (s *DB) Close() error {
 func (s *DB) checkVersion() error {
 	var v string
 	err := s.Get(dbinfo, "version", &v)
-	if err != nil && err != ErrNotFound {
+	if err != nil && !errors.Is(err, ErrNotFound) {
 		return err
 	}
 

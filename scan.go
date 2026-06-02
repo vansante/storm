@@ -11,7 +11,7 @@ type BucketScanner interface {
 	// PrefixScan scans the root buckets for keys matching the given prefix.
 	PrefixScan(prefix string) []Node
 	// PrefixScan scans the buckets in this node for keys matching the given prefix.
-	RangeScan(min, max string) []Node
+	RangeScan(minVal, maxVal string) []Node
 }
 
 // PrefixScan scans the buckets in this node for keys matching the given prefix.
@@ -22,7 +22,7 @@ func (n *node) PrefixScan(prefix string) []Node {
 
 	var nodes []Node
 
-	n.readTx(func(tx *bolt.Tx) error {
+	_ = n.readTx(func(tx *bolt.Tx) error {
 		nodes = n.prefixScan(tx, prefix)
 		return nil
 	})
@@ -53,25 +53,25 @@ func (n *node) prefixScan(tx *bolt.Tx, prefix string) []Node {
 }
 
 // RangeScan scans the buckets in this node  over a range such as a sortable time range.
-func (n *node) RangeScan(min, max string) []Node {
+func (n *node) RangeScan(minVal, maxVal string) []Node {
 	if n.tx != nil {
-		return n.rangeScan(n.tx, min, max)
+		return n.rangeScan(n.tx, minVal, maxVal)
 	}
 
 	var nodes []Node
 
-	n.readTx(func(tx *bolt.Tx) error {
-		nodes = n.rangeScan(tx, min, max)
+	_ = n.readTx(func(tx *bolt.Tx) error {
+		nodes = n.rangeScan(tx, minVal, maxVal)
 		return nil
 	})
 
 	return nodes
 }
 
-func (n *node) rangeScan(tx *bolt.Tx, min, max string) []Node {
+func (n *node) rangeScan(tx *bolt.Tx, minVal, maxVal string) []Node {
 	var (
-		minBytes = []byte(min)
-		maxBytes = []byte(max)
+		minBytes = []byte(minVal)
+		maxBytes = []byte(maxVal)
 		nodes    []Node
 		c        = n.cursor(tx)
 	)
