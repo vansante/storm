@@ -52,13 +52,13 @@ _For extended queries and support for [Badger](https://github.com/dgraph-io/badg
 ## Getting Started
 
 ```bash
-GO111MODULE=on go get -u github.com/asdine/storm/v3
+GO111MODULE=on go get -u github.com/vansante/storm/v3
 ```
 
 ## Import Storm
 
 ```go
-import "github.com/asdine/storm/v3"
+import "github.com/vansante/storm/v3"
 ```
 
 ## Open a database
@@ -475,12 +475,12 @@ These can be used by importing the relevant package and use that codec to config
 
 ```go
 import (
-  "github.com/asdine/storm/v3"
-  "github.com/asdine/storm/v3/codec/gob"
-  "github.com/asdine/storm/v3/codec/json"
-  "github.com/asdine/storm/v3/codec/sereal"
-  "github.com/asdine/storm/v3/codec/protobuf"
-  "github.com/asdine/storm/v3/codec/msgpack"
+  "github.com/vansante/storm/v3"
+  "github.com/vansante/storm/v3/codec/gob"
+  "github.com/vansante/storm/v3/codec/json"
+  "github.com/vansante/storm/v3/codec/sereal"
+  "github.com/vansante/storm/v3/codec/protobuf"
+  "github.com/vansante/storm/v3/codec/msgpack"
 )
 
 var gobDb, _ = storm.Open("gob.db", storm.Codec(gob.Codec))

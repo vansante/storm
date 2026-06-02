@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/asdine/storm/v3"
-	"github.com/asdine/storm/v3/q"
+	"github.com/vansante/storm/v3"
+	"github.com/vansante/storm/v3/q"
 )
 
 func ExampleRe() {

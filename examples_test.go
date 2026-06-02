@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/asdine/storm/v3"
-	"github.com/asdine/storm/v3/codec/gob"
+	"github.com/vansante/storm/v3"
+	"github.com/vansante/storm/v3/codec/gob"
 	bolt "go.etcd.io/bbolt"
 )
 

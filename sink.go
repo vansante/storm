@@ -5,8 +5,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/asdine/storm/v3/index"
-	"github.com/asdine/storm/v3/q"
+	"github.com/vansante/storm/v3/index"
+	"github.com/vansante/storm/v3/q"
 	bolt "go.etcd.io/bbolt"
 )
 

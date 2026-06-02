@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/asdine/storm/v3/codec/gob"
-	"github.com/asdine/storm/v3/codec/json"
-	"github.com/asdine/storm/v3/q"
 	"github.com/stretchr/testify/require"
+	"github.com/vansante/storm/v3/codec/gob"
+	"github.com/vansante/storm/v3/codec/json"
+	"github.com/vansante/storm/v3/q"
 	bolt "go.etcd.io/bbolt"
 )
 

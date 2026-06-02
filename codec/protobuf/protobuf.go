@@ -2,7 +2,7 @@
 package protobuf
 
 import (
-	"github.com/asdine/storm/v3/codec/json"
+	"github.com/vansante/storm/v3/codec/json"
 	"google.golang.org/protobuf/proto"
 )
 

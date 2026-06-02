@@ -1,4 +1,4 @@
-module github.com/asdine/storm/v3
+module github.com/vansante/storm/v3
 
 go 1.25.0
 

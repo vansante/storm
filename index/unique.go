@@ -3,7 +3,7 @@ package index
 import (
 	"bytes"
 
-	"github.com/asdine/storm/v3/internal"
+	"github.com/vansante/storm/v3/internal"
 	bolt "go.etcd.io/bbolt"
 )
 

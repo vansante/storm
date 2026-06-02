@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/asdine/storm/v3/codec/json"
-	"github.com/asdine/storm/v3/q"
 	"github.com/stretchr/testify/require"
+	"github.com/vansante/storm/v3/codec/json"
+	"github.com/vansante/storm/v3/q"
 )
 
 type Score struct {

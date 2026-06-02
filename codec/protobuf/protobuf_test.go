@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/asdine/storm/v3"
-	"github.com/asdine/storm/v3/codec/internal"
 	"github.com/stretchr/testify/require"
+	"github.com/vansante/storm/v3"
+	"github.com/vansante/storm/v3/codec/internal"
 )
 
 func TestProtobuf(t *testing.T) {

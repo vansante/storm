@@ -1,8 +1,8 @@
 package storm
 
 import (
-	"github.com/asdine/storm/v3/internal"
-	"github.com/asdine/storm/v3/q"
+	"github.com/vansante/storm/v3/internal"
+	"github.com/vansante/storm/v3/q"
 	bolt "go.etcd.io/bbolt"
 )
 
