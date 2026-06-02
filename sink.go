@@ -148,9 +148,8 @@ func (s *sorter) compareValue(left reflect.Value, right reflect.Value) int {
 				if lok && rok {
 					if lt.Before(rt) {
 						return -1
-					} else {
-						return 1
 					}
+					return 1
 				}
 			}
 		}
@@ -529,7 +528,7 @@ func (c *countSink) bucketName() string {
 	return reflect.Indirect(c.ref).Type().Name()
 }
 
-func (c *countSink) add(i *item) error {
+func (c *countSink) add(_ *item) error {
 	c.counter++
 	return nil
 }

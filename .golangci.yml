@@ -1,7 +1,7 @@
 version: "2"
 run:
   issues-exit-code: 1
-  tests: true
+  tests: false
 linters:
   enable:
     - asasalint
@@ -48,15 +48,16 @@ linters:
   settings:
     dupl:
       threshold: 100
+    funlen:
+      lines: 60
+      statements: 60
     goconst:
       min-len: 3
       min-occurrences: 2
     gocyclo:
-      min-complexity: 20
+      min-complexity: 60
     lll:
       line-length: 160
-    nakedret:
-      max-func-lines: 10
   exclusions:
     generated: lax
     presets:

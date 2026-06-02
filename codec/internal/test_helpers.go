@@ -1,3 +1,4 @@
+// Package internal provides shared test helpers for the codec sub-packages.
 package internal
 
 import (

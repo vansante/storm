@@ -1,3 +1,5 @@
+// Package storm is a wrapper around bbolt that provides indexed key/value storage
+// with support for typed buckets, queries and transactions.
 package storm
 
 import (

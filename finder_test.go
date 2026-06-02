@@ -538,53 +538,53 @@ func TestRange(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	min := "John010"
-	max := "John020"
+	minVal := "John010"
+	maxVal := "John020"
 	var users []User
 
-	err := db.Range("Slug", min, max, users)
+	err := db.Range("Slug", minVal, maxVal, users)
 	require.Equal(t, ErrSlicePtrNeeded, err)
 
-	err = db.Range("Slug", min, max, &users)
+	err = db.Range("Slug", minVal, maxVal, &users)
 	require.NoError(t, err)
 	require.Len(t, users, 11)
 	require.Equal(t, "John010", users[0].Slug)
 	require.Equal(t, "John020", users[10].Slug)
 
-	err = db.Range("Slug", min, max, &users, Reverse())
+	err = db.Range("Slug", minVal, maxVal, &users, Reverse())
 	require.NoError(t, err)
 	require.Len(t, users, 11)
 	require.Equal(t, "John020", users[0].Slug)
 	require.Equal(t, "John010", users[10].Slug)
 
-	min = "Zach010"
-	max = "Zach020"
+	minVal = "Zach010"
+	maxVal = "Zach020"
 	users = nil
-	err = db.Range("Name", min, max, &users)
+	err = db.Range("Name", minVal, maxVal, &users)
 	require.NoError(t, err)
 	require.Len(t, users, 11)
 	require.Equal(t, "Zach010", users[0].Name)
 	require.Equal(t, "Zach020", users[10].Name)
 
-	err = db.Range("Name", min, max, &users, Reverse())
+	err = db.Range("Name", minVal, maxVal, &users, Reverse())
 	require.NoError(t, err)
 	require.Len(t, users, 11)
 	require.Equal(t, "Zach020", users[0].Name)
 	require.Equal(t, "Zach010", users[10].Name)
 
-	err = db.Range("Name", min, max, &User{})
+	err = db.Range("Name", minVal, maxVal, &User{})
 	require.Error(t, err)
 	require.Equal(t, ErrSlicePtrNeeded, err)
 
 	notTheRightUsers := []UniqueNameUser{}
 
-	err = db.Range("Name", min, max, &notTheRightUsers)
+	err = db.Range("Name", minVal, maxVal, &notTheRightUsers)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(notTheRightUsers))
 
 	users = nil
 
-	err = db.Range("Age", min, max, &users)
+	err = db.Range("Age", minVal, maxVal, &users)
 	require.Error(t, err)
 	require.EqualError(t, err, "not found")
 

@@ -280,7 +280,7 @@ func (n *node) Update(data any) error {
 
 // UpdateField updates a single field
 func (n *node) UpdateField(data any, fieldName string, value any) error {
-	return n.update(data, func(ref *reflect.Value, current *reflect.Value, cfg *structConfig) error {
+	return n.update(data, func(_ *reflect.Value, current *reflect.Value, cfg *structConfig) error {
 		f := current.FieldByName(fieldName)
 		if !f.IsValid() {
 			return ErrNotFound

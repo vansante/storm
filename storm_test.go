@@ -92,11 +92,11 @@ func TestBoltDB(t *testing.T) {
 
 type dummyCodec int
 
-func (c dummyCodec) Marshal(v any) ([]byte, error) {
+func (c dummyCodec) Marshal(_ any) ([]byte, error) {
 	return []byte("dummy"), nil
 }
 
-func (c dummyCodec) Unmarshal(b []byte, v any) error {
+func (c dummyCodec) Unmarshal(_ []byte, _ any) error {
 	return nil
 }
 

@@ -28,7 +28,7 @@ type Finder interface {
 	Select(matchers ...q.Matcher) Query
 
 	// Range returns one or more records by the specified index within the specified range
-	Range(fieldName string, min, max, to any, options ...func(*index.Options)) error
+	Range(fieldName string, minVal, maxVal, to any, options ...func(*index.Options)) error
 
 	// Prefix returns one or more records whose given field starts with the specified prefix.
 	Prefix(fieldName string, prefix string, to any, options ...func(*index.Options)) error
@@ -316,7 +316,7 @@ func (n *node) All(to any, options ...func(*index.Options)) error {
 }
 
 // Range returns one or more records by the specified index within the specified range
-func (n *node) Range(fieldName string, min, max, to any, options ...func(*index.Options)) error {
+func (n *node) Range(fieldName string, minVal, maxVal, to any, options ...func(*index.Options)) error {
 	sink, err := newListSink(n, to)
 	if err != nil {
 		return err
@@ -340,7 +340,7 @@ func (n *node) Range(fieldName string, min, max, to any, options ...func(*index.
 
 	field, ok := cfg.Fields[fieldName]
 	if !ok || (!field.IsID && field.Index == "") {
-		query := newQuery(n, q.And(q.Gte(fieldName, min), q.Lte(fieldName, max)))
+		query := newQuery(n, q.And(q.Gte(fieldName, minVal), q.Lte(fieldName, maxVal)))
 		query.Skip(opts.Skip).Limit(opts.Limit)
 
 		if opts.Reverse {
@@ -357,12 +357,12 @@ func (n *node) Range(fieldName string, min, max, to any, options ...func(*index.
 		return sink.flush()
 	}
 
-	mn, err := toBytes(min, n.codec)
+	mn, err := toBytes(minVal, n.codec)
 	if err != nil {
 		return err
 	}
 
-	mx, err := toBytes(max, n.codec)
+	mx, err := toBytes(maxVal, n.codec)
 	if err != nil {
 		return err
 	}
@@ -372,7 +372,7 @@ func (n *node) Range(fieldName string, min, max, to any, options ...func(*index.
 	})
 }
 
-func (n *node) rnge(tx *bolt.Tx, bucketName, fieldName string, cfg *structConfig, sink *listSink, min, max []byte, opts *index.Options) error {
+func (n *node) rnge(tx *bolt.Tx, bucketName, fieldName string, cfg *structConfig, sink *listSink, minVal, maxVal []byte, opts *index.Options) error {
 	bucket := n.GetBucket(tx, bucketName)
 	if bucket == nil {
 		reflect.Indirect(sink.ref).SetLen(0)
@@ -384,7 +384,7 @@ func (n *node) rnge(tx *bolt.Tx, bucketName, fieldName string, cfg *structConfig
 		return err
 	}
 
-	list, err := idx.Range(min, max, opts)
+	list, err := idx.Range(minVal, maxVal, opts)
 	if err != nil {
 		return err
 	}

@@ -200,14 +200,14 @@ func (idx *ListIndex) AllRecords(opts *Options) ([][]byte, error) {
 }
 
 // Range returns the ids corresponding to the given range of values
-func (idx *ListIndex) Range(min []byte, max []byte, opts *Options) ([][]byte, error) {
+func (idx *ListIndex) Range(minVal []byte, maxVal []byte, opts *Options) ([][]byte, error) {
 	var list [][]byte
 
 	c := internal.RangeCursor{
 		C:       idx.IndexBucket.Cursor(),
 		Reverse: opts != nil && opts.Reverse,
-		Min:     min,
-		Max:     max,
+		Min:     minVal,
+		Max:     maxVal,
 		CompareFn: func(val, limit []byte) int {
 			pos := bytes.LastIndex(val, []byte("__"))
 			return bytes.Compare(val[:pos], limit)

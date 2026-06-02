@@ -1,3 +1,4 @@
+// Package aes provides a codec that encrypts data using AES-GCM.
 package aes
 
 import (

@@ -76,7 +76,7 @@ func (idx *UniqueIndex) Get(value []byte) []byte {
 }
 
 // All returns all the ids corresponding to the given value
-func (idx *UniqueIndex) All(value []byte, opts *Options) ([][]byte, error) {
+func (idx *UniqueIndex) All(value []byte, _ *Options) ([][]byte, error) {
 	id := idx.IndexBucket.Get(value)
 	if id != nil {
 		return [][]byte{id}, nil
@@ -111,14 +111,14 @@ func (idx *UniqueIndex) AllRecords(opts *Options) ([][]byte, error) {
 }
 
 // Range returns the ids corresponding to the given range of values
-func (idx *UniqueIndex) Range(min []byte, max []byte, opts *Options) ([][]byte, error) {
+func (idx *UniqueIndex) Range(minVal []byte, maxVal []byte, opts *Options) ([][]byte, error) {
 	var list [][]byte
 
 	c := internal.RangeCursor{
 		C:       idx.IndexBucket.Cursor(),
 		Reverse: opts != nil && opts.Reverse,
-		Min:     min,
-		Max:     max,
+		Min:     minVal,
+		Max:     maxVal,
 		CompareFn: func(val, limit []byte) int {
 			return bytes.Compare(val, limit)
 		},
