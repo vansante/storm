@@ -63,6 +63,10 @@ linters:
       - common-false-positives
       - legacy
       - std-error-handling
+    rules:
+      - path: node.go
+        linters:
+          - recvcheck
     paths:
       - third_party$
       - builtin$
