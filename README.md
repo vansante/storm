@@ -1,7 +1,10 @@
 # Storm
 
-[![Build Status](https://travis-ci.org/asdine/storm.svg)](https://travis-ci.org/asdine/storm)
-[![GoDoc](https://godoc.org/github.com/asdine/storm?status.svg)](https://godoc.org/github.com/asdine/storm)
+## Fork notification
+
+This is a fork of [Storm](https://github.com/asdine/storm) that modernizes the dependencies a bit. It drops support for the some codecs to keep the dependency list small.
+
+## Storm
 
 Storm is a simple and powerful toolkit for [BoltDB](https://github.com/coreos/bbolt). Basically, Storm provides indexes, a wide range of methods to store and fetch data, an advanced query system, and much more.
 
