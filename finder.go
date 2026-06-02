@@ -156,7 +156,6 @@ func (n *node) Find(fieldName string, value interface{}, to interface{}, options
 		err = n.readTx(func(tx *bolt.Tx) error {
 			return query.query(tx, sink)
 		})
-
 		if err != nil {
 			return err
 		}
@@ -351,7 +350,6 @@ func (n *node) Range(fieldName string, min, max, to interface{}, options ...func
 		err = n.readTx(func(tx *bolt.Tx) error {
 			return query.query(tx, sink)
 		})
-
 		if err != nil {
 			return err
 		}
@@ -442,7 +440,6 @@ func (n *node) Prefix(fieldName string, prefix string, to interface{}, options .
 		err = n.readTx(func(tx *bolt.Tx) error {
 			return query.query(tx, sink)
 		})
-
 		if err != nil {
 			return err
 		}

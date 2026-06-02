@@ -85,7 +85,6 @@ func (n *node) rangeScan(tx *bolt.Tx, min, max string) []Node {
 	}
 
 	return nodes
-
 }
 
 func (n *node) cursor(tx *bolt.Tx) *bolt.Cursor {

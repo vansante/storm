@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	bolt "go.etcd.io/bbolt"
 	"github.com/stretchr/testify/require"
+	bolt "go.etcd.io/bbolt"
 )
 
 func TestFind(t *testing.T) {
@@ -500,7 +500,7 @@ func TestOneNotWritable(t *testing.T) {
 
 	db.Close()
 
-	db, _ = Open(filepath.Join(dir, "storm.db"), BoltOptions(0660, &bolt.Options{
+	db, _ = Open(filepath.Join(dir, "storm.db"), BoltOptions(0o660, &bolt.Options{
 		ReadOnly: true,
 	}))
 	defer db.Close()

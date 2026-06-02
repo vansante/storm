@@ -45,7 +45,7 @@ func Open(path string, stormOptions ...func(*Options) error) (*DB, error) {
 	}
 
 	if opts.boltMode == 0 {
-		opts.boltMode = 0600
+		opts.boltMode = 0o600
 	}
 
 	if opts.boltOptions == nil {

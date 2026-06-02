@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/asdine/storm/v3/codec/json"
-	bolt "go.etcd.io/bbolt"
 	"github.com/stretchr/testify/require"
+	bolt "go.etcd.io/bbolt"
 )
 
 func TestNewStorm(t *testing.T) {
@@ -47,7 +47,7 @@ func TestNewStormWithStormOptions(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	dc := new(dummyCodec)
-	db1, _ := Open(filepath.Join(dir, "storm1.db"), BoltOptions(0660, &bolt.Options{Timeout: 10 * time.Second}), Codec(dc), Root("a", "b"))
+	db1, _ := Open(filepath.Join(dir, "storm1.db"), BoltOptions(0o660, &bolt.Options{Timeout: 10 * time.Second}), Codec(dc), Root("a", "b"))
 	require.Equal(t, dc, db1.Codec())
 	require.Equal(t, []string{"a", "b"}, db1.Node.(*node).rootBucket)
 
@@ -81,7 +81,7 @@ func TestNewStormWithBatch(t *testing.T) {
 func TestBoltDB(t *testing.T) {
 	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
 	defer os.RemoveAll(dir)
-	bDB, err := bolt.Open(filepath.Join(dir, "bolt.db"), 0600, &bolt.Options{Timeout: 10 * time.Second})
+	bDB, err := bolt.Open(filepath.Join(dir, "bolt.db"), 0o600, &bolt.Options{Timeout: 10 * time.Second})
 	require.NoError(t, err)
 	// no need to close bolt.DB Storm will take care of it
 	sDB, err := Open("my.db", UseDB(bDB))

@@ -50,5 +50,4 @@ func TestRe(t *testing.T) {
 	q = Re("A", "\\d++")
 	_, err = q.Match(&b)
 	require.Error(t, err)
-
 }

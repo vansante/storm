@@ -40,7 +40,6 @@ func ExampleDB_Save() {
 	}
 
 	err := db.Save(&user)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,14 +66,12 @@ func ExampleDB_One() {
 	var user User
 
 	err := db.One("Email", "john@provider.com", &user)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// also works on unindexed fields
 	err = db.One("Name", "John", &user)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -93,7 +90,6 @@ func ExampleDB_Find() {
 
 	var users []User
 	err := db.Find("Group", "staff", &users)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -111,7 +107,6 @@ func ExampleDB_All() {
 
 	var users []User
 	err := db.All(&users)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -129,7 +124,6 @@ func ExampleDB_AllByIndex() {
 
 	var users []User
 	err := db.AllByIndex("CreatedAt", &users)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -147,7 +141,6 @@ func ExampleDB_Range() {
 
 	var users []User
 	err := db.Range("Age", 21, 22, &users)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -165,7 +158,6 @@ func ExampleLimit() {
 
 	var users []User
 	err := db.All(&users, storm.Limit(2))
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -183,7 +175,6 @@ func ExampleSkip() {
 
 	var users []User
 	err := db.All(&users, storm.Skip(1))
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -198,7 +189,7 @@ func ExampleUseDB() {
 	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
 	defer os.RemoveAll(dir)
 
-	bDB, err := bolt.Open(filepath.Join(dir, "bolt.db"), 0600, &bolt.Options{Timeout: 10 * time.Second})
+	bDB, err := bolt.Open(filepath.Join(dir, "bolt.db"), 0o600, &bolt.Options{Timeout: 10 * time.Second})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -227,7 +218,6 @@ func ExampleDB_DeleteStruct() {
 	var user User
 
 	err := db.One("ID", 1, &user)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -248,20 +238,17 @@ func ExampleDB_Begin() {
 	var account1, account2 Account
 
 	tx, err := db.Begin(true)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer tx.Rollback()
 
 	err = tx.One("ID", 1, &account1)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = tx.One("ID", 2, &account2)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -270,13 +257,11 @@ func ExampleDB_Begin() {
 	account2.Amount += 1000
 
 	err = tx.Save(&account1)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = tx.Save(&account2)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -286,13 +271,11 @@ func ExampleDB_Begin() {
 	var account1Reloaded, account2Reloaded Account
 
 	err = db.One("ID", 1, &account1Reloaded)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = db.One("ID", 2, &account2Reloaded)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -315,13 +298,11 @@ func ExampleDB_From() {
 	workNotes := db.From("notes", "work")
 
 	err := privateNotes.Save(&Note{ID: "private1", Text: "This is some private text."})
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = workNotes.Save(&Note{ID: "work1", Text: "Work related."})
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -334,13 +315,11 @@ func ExampleDB_From() {
 	fmt.Println(err)
 
 	err = workNotes.One("ID", "work1", &workNote)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = privateNotes.One("ID", "private1", &privateNote)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -351,13 +330,11 @@ func ExampleDB_From() {
 	// These can be nested further if needed:
 	personalNotes := privateNotes.From("personal")
 	err = personalNotes.Save(&Note{ID: "personal1", Text: "This is some very personal text."})
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = personalNotes.One("ID", "personal1", &personalNote)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -379,7 +356,6 @@ func ExampleDB_Drop() {
 	var user User
 
 	err := db.One("Email", "john@provider.com", &user)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -439,7 +415,6 @@ func ExampleNode_PrefixScan() {
 	fmt.Println("Bucket", nodes[2].Bucket()[1])
 
 	count, err := march.Count(&Note{})
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -447,10 +422,10 @@ func ExampleNode_PrefixScan() {
 	fmt.Println("Notes in March:", count)
 
 	// Output:
-	//Note buckets in 2016: 12
-	//Bucket 201603
-	//Bucket 201603
-	//Notes in March: 3
+	// Note buckets in 2016: 12
+	// Bucket 201603
+	// Bucket 201603
+	// Notes in March: 3
 
 }
 
@@ -484,7 +459,6 @@ func ExampleNode_RangeScan() {
 	fmt.Println("Note buckets in first half of 2014:", len(nodes))
 
 	notesCount, err := nodes[0].Count(&Note{})
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -529,7 +503,6 @@ func prepareDB() (string, *storm.DB) {
 			CreatedAt: time.Now(),
 		}
 		err := db.Save(&user)
-
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -539,7 +512,6 @@ func prepareDB() (string, *storm.DB) {
 		account := Account{Amount: 10000}
 
 		err := db.Save(&account)
-
 		if err != nil {
 			log.Fatal(err)
 		}
