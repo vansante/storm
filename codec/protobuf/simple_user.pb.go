@@ -6,16 +6,18 @@
 Package protobuf is a generated protocol buffer package.
 
 It is generated from these files:
+
 	simple_user.proto
 
 It has these top-level messages:
+
 	SimpleUser
 */
 package protobuf
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
+import "google.golang.org/protobuf/proto"
+import "fmt"
+import "math"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
