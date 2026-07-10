@@ -3,10 +3,10 @@ package storm
 import (
 	"testing"
 
-	"github.com/asdine/storm/v3/codec/gob"
-	"github.com/asdine/storm/v3/codec/json"
-	bolt "go.etcd.io/bbolt"
 	"github.com/stretchr/testify/require"
+	"github.com/vansante/storm/v3/codec/gob"
+	"github.com/vansante/storm/v3/codec/json"
+	bolt "go.etcd.io/bbolt"
 )
 
 func TestNode(t *testing.T) {
@@ -71,7 +71,7 @@ func TestNodeWithCodec(t *testing.T) {
 			Name string `storm:"index"`
 		}
 
-		requireBytesEqual := func(raw []byte, expected interface{}) {
+		requireBytesEqual := func(raw []byte, expected any) {
 			var u User
 			err := gob.Codec.Unmarshal(raw, &u)
 			require.NoError(t, err)

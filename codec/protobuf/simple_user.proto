@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package protobuf;
 
+option go_package = "github.com/vansante/storm/v3/codec/protobuf";
+
 message SimpleUser {
     uint64 id = 1;
     string name = 2;

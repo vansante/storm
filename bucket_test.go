@@ -31,7 +31,6 @@ func TestBucket(t *testing.T) {
 
 	// Write tx
 	writeTx, err := db.Bolt.Begin(true)
-
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -3,7 +3,7 @@ package index
 import (
 	"bytes"
 
-	"github.com/asdine/storm/v3/internal"
+	"github.com/vansante/storm/v3/internal"
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -42,10 +42,10 @@ type ListIndex struct {
 
 // Add a value to the list index
 func (idx *ListIndex) Add(newValue []byte, targetID []byte) error {
-	if newValue == nil || len(newValue) == 0 {
+	if len(newValue) == 0 {
 		return ErrNilParam
 	}
-	if targetID == nil || len(targetID) == 0 {
+	if len(targetID) == 0 {
 		return ErrNilParam
 	}
 
@@ -208,14 +208,14 @@ func (idx *ListIndex) AllRecords(opts *Options) ([][]byte, error) {
 }
 
 // Range returns the ids corresponding to the given range of values
-func (idx *ListIndex) Range(min []byte, max []byte, opts *Options) ([][]byte, error) {
+func (idx *ListIndex) Range(minVal []byte, maxVal []byte, opts *Options) ([][]byte, error) {
 	var list [][]byte
 
 	c := internal.RangeCursor{
 		C:       idx.IndexBucket.Cursor(),
 		Reverse: opts != nil && opts.Reverse,
-		Min:     min,
-		Max:     max,
+		Min:     minVal,
+		Max:     maxVal,
 		CompareFn: func(val, limit []byte) int {
 			pos := bytes.LastIndex(val, []byte("__"))
 			return bytes.Compare(val[:pos], limit)
@@ -281,7 +281,7 @@ func (idx *ListIndex) Prefix(prefix []byte, opts *Options) ([][]byte, error) {
 
 func generatePrefix(value []byte) []byte {
 	prefix := make([]byte, len(value)+2)
-	var i int
+	i := -1
 	for i = range value {
 		prefix[i] = value[i]
 	}

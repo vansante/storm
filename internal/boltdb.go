@@ -1,3 +1,4 @@
+// Package internal provides helpers used internally by storm.
 package internal
 
 import (
@@ -86,7 +87,9 @@ type PrefixCursor struct {
 func (c *PrefixCursor) First() ([]byte, []byte) {
 	var k, v []byte
 
-	for k, v = c.C.First(); k != nil && !bytes.HasPrefix(k, c.Prefix); k, v = c.C.Next() {
+	k, v = c.C.First()
+	for k != nil && !bytes.HasPrefix(k, c.Prefix) {
+		k, v = c.C.Next()
 	}
 
 	if k == nil {

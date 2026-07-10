@@ -15,8 +15,8 @@ func compare(a, b interface{}, tok token.Token) bool {
 	bk := valb.Kind()
 	switch {
 	// comparing nil values
-	case (ak == reflect.Ptr || ak == reflect.Slice || ak == reflect.Interface || ak == reflect.Invalid) &&
-		(bk == reflect.Ptr || ak == reflect.Slice || bk == reflect.Interface || bk == reflect.Invalid) &&
+	case (ak == reflect.Pointer || ak == reflect.Slice || ak == reflect.Interface || ak == reflect.Invalid) &&
+		(bk == reflect.Pointer || ak == reflect.Slice || bk == reflect.Interface || bk == reflect.Invalid) &&
 		(!vala.IsValid() || vala.IsNil()) && (!valb.IsValid() || valb.IsNil()):
 		return true
 	case ak >= reflect.Int && ak <= reflect.Int64:

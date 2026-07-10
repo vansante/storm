@@ -3,23 +3,22 @@ package index_test
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/asdine/storm/v3"
-	"github.com/asdine/storm/v3/codec/gob"
-	"github.com/asdine/storm/v3/index"
 	"github.com/stretchr/testify/require"
+	"github.com/vansante/storm/v3"
+	"github.com/vansante/storm/v3/codec/gob"
+	"github.com/vansante/storm/v3/index"
 	bolt "go.etcd.io/bbolt"
 )
 
 func TestListIndex(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	err := db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
@@ -150,10 +149,10 @@ func TestListIndex(t *testing.T) {
 }
 
 func TestListIndexReverse(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	err := db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
@@ -192,12 +191,12 @@ func TestListIndexReverse(t *testing.T) {
 }
 
 func TestListIndexAddRemoveID(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
-	db.Bolt.Update(func(tx *bolt.Tx) error {
+	err := db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
 		require.NoError(t, err)
 
@@ -233,15 +232,16 @@ func TestListIndexAddRemoveID(t *testing.T) {
 		require.Equal(t, 0, countItems(t, idx.IndexBucket))
 		return nil
 	})
+	require.NoError(t, err)
 }
 
 func TestListIndexAllRecords(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
-	db.Bolt.Update(func(tx *bolt.Tx) error {
+	err := db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
 		require.NoError(t, err)
 
@@ -310,15 +310,16 @@ func TestListIndexAllRecords(t *testing.T) {
 
 		return nil
 	})
+	require.NoError(t, err)
 }
 
 func TestListIndexRange(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
-	db.Bolt.Update(func(tx *bolt.Tx) error {
+	err := db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
 		require.NoError(t, err)
 
@@ -331,43 +332,43 @@ func TestListIndexRange(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		min, _ := gob.Codec.Marshal(3)
-		max, _ := gob.Codec.Marshal(5)
-		list, err := idx.Range(min, max, nil)
+		minVal, _ := gob.Codec.Marshal(3)
+		maxVal, _ := gob.Codec.Marshal(5)
+		list, err := idx.Range(minVal, maxVal, nil)
 		require.Len(t, list, 3)
 		require.NoError(t, err)
 		assertEncodedIntListEqual(t, []int{3, 4, 5}, list)
 
-		min, _ = gob.Codec.Marshal(11)
-		max, _ = gob.Codec.Marshal(20)
-		list, err = idx.Range(min, max, nil)
+		minVal, _ = gob.Codec.Marshal(11)
+		maxVal, _ = gob.Codec.Marshal(20)
+		list, err = idx.Range(minVal, maxVal, nil)
 		require.Len(t, list, 0)
 		require.NoError(t, err)
 
-		min, _ = gob.Codec.Marshal(7)
-		max, _ = gob.Codec.Marshal(2)
-		list, err = idx.Range(min, max, nil)
+		minVal, _ = gob.Codec.Marshal(7)
+		maxVal, _ = gob.Codec.Marshal(2)
+		list, err = idx.Range(minVal, maxVal, nil)
 		require.Len(t, list, 0)
 		require.NoError(t, err)
 
-		min, _ = gob.Codec.Marshal(-5)
-		max, _ = gob.Codec.Marshal(2)
-		list, err = idx.Range(min, max, nil)
+		minVal, _ = gob.Codec.Marshal(-5)
+		maxVal, _ = gob.Codec.Marshal(2)
+		list, err = idx.Range(minVal, maxVal, nil)
 		require.Len(t, list, 0)
 		require.NoError(t, err)
 
-		min, _ = gob.Codec.Marshal(3)
-		max, _ = gob.Codec.Marshal(7)
+		minVal, _ = gob.Codec.Marshal(3)
+		maxVal, _ = gob.Codec.Marshal(7)
 		opts := index.NewOptions()
 		opts.Skip = 2
-		list, err = idx.Range(min, max, opts)
+		list, err = idx.Range(minVal, maxVal, opts)
 		require.Len(t, list, 3)
 		require.NoError(t, err)
 		assertEncodedIntListEqual(t, []int{5, 6, 7}, list)
 
 		opts = index.NewOptions()
 		opts.Limit = 2
-		list, err = idx.Range(min, max, opts)
+		list, err = idx.Range(minVal, maxVal, opts)
 		require.Len(t, list, 2)
 		require.NoError(t, err)
 		assertEncodedIntListEqual(t, []int{3, 4}, list)
@@ -376,7 +377,7 @@ func TestListIndexRange(t *testing.T) {
 		opts.Reverse = true
 		opts.Skip = 2
 		opts.Limit = 2
-		list, err = idx.Range(min, max, opts)
+		list, err = idx.Range(minVal, maxVal, opts)
 		require.Len(t, list, 2)
 		require.NoError(t, err)
 		assertEncodedIntListEqual(t, []int{5, 4}, list)
@@ -387,34 +388,35 @@ func TestListIndexRange(t *testing.T) {
 		require.NoError(t, err)
 
 		// normal with gaps
-		min, _ = gob.Codec.Marshal(6)
-		max, _ = gob.Codec.Marshal(8)
-		list, err = idx.Range(min, max, nil)
+		minVal, _ = gob.Codec.Marshal(6)
+		maxVal, _ = gob.Codec.Marshal(8)
+		list, err = idx.Range(minVal, maxVal, nil)
 		require.Len(t, list, 2)
 		require.NoError(t, err)
 		assertEncodedIntListEqual(t, []int{6, 7}, list)
 
 		// reverse with gaps
-		min, _ = gob.Codec.Marshal(6)
-		max, _ = gob.Codec.Marshal(8)
+		minVal, _ = gob.Codec.Marshal(6)
+		maxVal, _ = gob.Codec.Marshal(8)
 		opts = index.NewOptions()
 		opts.Reverse = true
-		list, err = idx.Range(min, max, opts)
+		list, err = idx.Range(minVal, maxVal, opts)
 		require.Len(t, list, 2)
 		require.NoError(t, err)
 		assertEncodedIntListEqual(t, []int{7, 6}, list)
 
 		return nil
 	})
+	require.NoError(t, err)
 }
 
 func TestListIndexPrefix(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
-	db.Bolt.Update(func(tx *bolt.Tx) error {
+	err := db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
 		require.NoError(t, err)
 
@@ -481,9 +483,10 @@ func TestListIndexPrefix(t *testing.T) {
 		require.Equal(t, []byte("0"), list[0])
 		return nil
 	})
+	require.NoError(t, err)
 }
 
-func countItems(t *testing.T, bucket *bolt.Bucket) int {
+func countItems(_ *testing.T, bucket *bolt.Bucket) int {
 	c := bucket.Cursor()
 	count := 0
 	for k, id := c.First(); k != nil; k, id = c.Next() {

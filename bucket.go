@@ -15,7 +15,6 @@ func (n *node) CreateBucketIfNotExists(tx *bolt.Tx, bucket string) (*bolt.Bucket
 			if b, err = b.CreateBucketIfNotExists([]byte(bucketName)); err != nil {
 				return nil, err
 			}
-
 		} else {
 			if b, err = tx.CreateBucketIfNotExists([]byte(bucketName)); err != nil {
 				return nil, err

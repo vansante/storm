@@ -30,11 +30,11 @@ func (c *cmp) MatchField(v interface{}) (bool, error) {
 
 type trueMatcher struct{}
 
-func (*trueMatcher) Match(i interface{}) (bool, error) {
+func (*trueMatcher) Match(_ interface{}) (bool, error) {
 	return true, nil
 }
 
-func (*trueMatcher) MatchValue(v *reflect.Value) (bool, error) {
+func (*trueMatcher) MatchValue(_ *reflect.Value) (bool, error) {
 	return true, nil
 }
 
@@ -107,7 +107,6 @@ func (c *and) MatchValue(v *reflect.Value) (bool, error) {
 }
 
 type strictEq struct {
-	field string
 	value interface{}
 }
 

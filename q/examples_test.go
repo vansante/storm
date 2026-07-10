@@ -3,23 +3,19 @@ package q_test
 import (
 	"fmt"
 	"log"
-
-	"time"
-
 	"os"
-
-	"io/ioutil"
 	"path/filepath"
 	"strings"
+	"time"
 
-	"github.com/asdine/storm/v3"
-	"github.com/asdine/storm/v3/q"
+	"github.com/vansante/storm/v3"
+	"github.com/vansante/storm/v3/q"
 )
 
 func ExampleRe() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var users []User
 
@@ -46,7 +42,7 @@ type User struct {
 }
 
 func prepareDB() (string, *storm.DB) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
 
 	for i, name := range []string{"John", "Norm", "Donald", "Eric", "Dilbert"} {
@@ -59,7 +55,6 @@ func prepareDB() (string, *storm.DB) {
 			CreatedAt: time.Now(),
 		}
 		err := db.Save(&user)
-
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -2,21 +2,20 @@ package storm
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
-	bolt "go.etcd.io/bbolt"
 	"github.com/stretchr/testify/require"
+	bolt "go.etcd.io/bbolt"
 )
 
 func TestFind(t *testing.T) {
 	db, cleanup := createDB(t)
 	defer cleanup()
 
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		w := User{Name: "John", ID: i + 1, Slug: fmt.Sprintf("John%d", i+1)}
 
 		if i%2 == 0 {
@@ -120,7 +119,7 @@ func TestFindNil(t *testing.T) {
 	}
 
 	t1 := time.Now()
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		now := time.Now()
 		var u User
 
@@ -158,7 +157,7 @@ func TestFindIntIndex(t *testing.T) {
 		Score uint64 `storm:"index"`
 	}
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		w := Score{Score: uint64(i % 3)}
 		err := db.Save(&w)
 		require.NoError(t, err)
@@ -179,7 +178,7 @@ func TestAllByIndex(t *testing.T) {
 	db, cleanup := createDB(t)
 	defer cleanup()
 
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		w := User{Name: "John", ID: i + 1, Slug: fmt.Sprintf("John%d", i+1), DateOfBirth: time.Now().Add(-time.Duration(i*10) * time.Minute)}
 		err := db.Save(&w)
 		require.NoError(t, err)
@@ -295,7 +294,7 @@ func TestAll(t *testing.T) {
 	db, cleanup := createDB(t)
 	defer cleanup()
 
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		w := User{Name: "John", ID: i + 1, Slug: fmt.Sprintf("John%d", i+1), DateOfBirth: time.Now().Add(-time.Duration(i*10) * time.Minute)}
 		err := db.Save(&w)
 		require.NoError(t, err)
@@ -361,7 +360,7 @@ func TestCount(t *testing.T) {
 	db, cleanup := createDB(t)
 	defer cleanup()
 
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		w := User{Name: "John", ID: i + 1, Slug: fmt.Sprintf("John%d", i+1), DateOfBirth: time.Now().Add(-time.Duration(i*10) * time.Minute)}
 		err := db.Save(&w)
 		require.NoError(t, err)
@@ -426,7 +425,7 @@ func TestOne(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, u, v)
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		w := IndexedNameUser{Name: "John", ID: i + 1, Group: "staff"}
 		err = db.Save(&w)
 		require.NoError(t, err)
@@ -491,8 +490,8 @@ func TestOne(t *testing.T) {
 }
 
 func TestOneNotWritable(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := Open(filepath.Join(dir, "storm.db"))
 
 	err := db.Save(&User{ID: 10, Name: "John"})
@@ -500,10 +499,10 @@ func TestOneNotWritable(t *testing.T) {
 
 	db.Close()
 
-	db, _ = Open(filepath.Join(dir, "storm.db"), BoltOptions(0660, &bolt.Options{
+	db, _ = Open(filepath.Join(dir, "storm.db"), BoltOptions(0o660, &bolt.Options{
 		ReadOnly: true,
 	}))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	err = db.Save(&User{ID: 20, Name: "John"})
 	require.Error(t, err)
@@ -524,7 +523,7 @@ func TestRange(t *testing.T) {
 	db, cleanup := createDB(t)
 	defer cleanup()
 
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		w := User{
 			Name:        "John",
 			ID:          i + 1,
@@ -539,53 +538,53 @@ func TestRange(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	min := "John010"
-	max := "John020"
+	minVal := "John010"
+	maxVal := "John020"
 	var users []User
 
-	err := db.Range("Slug", min, max, users)
+	err := db.Range("Slug", minVal, maxVal, users)
 	require.Equal(t, ErrSlicePtrNeeded, err)
 
-	err = db.Range("Slug", min, max, &users)
+	err = db.Range("Slug", minVal, maxVal, &users)
 	require.NoError(t, err)
 	require.Len(t, users, 11)
 	require.Equal(t, "John010", users[0].Slug)
 	require.Equal(t, "John020", users[10].Slug)
 
-	err = db.Range("Slug", min, max, &users, Reverse())
+	err = db.Range("Slug", minVal, maxVal, &users, Reverse())
 	require.NoError(t, err)
 	require.Len(t, users, 11)
 	require.Equal(t, "John020", users[0].Slug)
 	require.Equal(t, "John010", users[10].Slug)
 
-	min = "Zach010"
-	max = "Zach020"
+	minVal = "Zach010"
+	maxVal = "Zach020"
 	users = nil
-	err = db.Range("Name", min, max, &users)
+	err = db.Range("Name", minVal, maxVal, &users)
 	require.NoError(t, err)
 	require.Len(t, users, 11)
 	require.Equal(t, "Zach010", users[0].Name)
 	require.Equal(t, "Zach020", users[10].Name)
 
-	err = db.Range("Name", min, max, &users, Reverse())
+	err = db.Range("Name", minVal, maxVal, &users, Reverse())
 	require.NoError(t, err)
 	require.Len(t, users, 11)
 	require.Equal(t, "Zach020", users[0].Name)
 	require.Equal(t, "Zach010", users[10].Name)
 
-	err = db.Range("Name", min, max, &User{})
+	err = db.Range("Name", minVal, maxVal, &User{})
 	require.Error(t, err)
 	require.Equal(t, ErrSlicePtrNeeded, err)
 
 	notTheRightUsers := []UniqueNameUser{}
 
-	err = db.Range("Name", min, max, &notTheRightUsers)
+	err = db.Range("Name", minVal, maxVal, &notTheRightUsers)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(notTheRightUsers))
 
 	users = nil
 
-	err = db.Range("Age", min, max, &users)
+	err = db.Range("Age", minVal, maxVal, &users)
 	require.Error(t, err)
 	require.EqualError(t, err, "not found")
 
@@ -622,7 +621,7 @@ func TestPrefix(t *testing.T) {
 	db, cleanup := createDB(t)
 	defer cleanup()
 
-	for i := 0; i < 50; i++ {
+	for i := range 50 {
 		w := User{
 			ID: i + 1,
 		}

@@ -2,21 +2,20 @@ package storm_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/asdine/storm/v3"
-	"github.com/asdine/storm/v3/codec/gob"
+	"github.com/vansante/storm/v3"
+	"github.com/vansante/storm/v3/codec/gob"
 	bolt "go.etcd.io/bbolt"
 )
 
 func ExampleDB_Save() {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 
 	type User struct {
 		ID        int    `storm:"id,increment"` // the increment tag will auto-increment integer IDs without existing values.
@@ -29,7 +28,7 @@ func ExampleDB_Save() {
 
 	// Open takes an optional list of options as the last argument.
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"), storm.Codec(gob.Codec))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	user := User{
 		Group:     "staff",
@@ -40,7 +39,6 @@ func ExampleDB_Save() {
 	}
 
 	err := db.Save(&user)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -61,20 +59,18 @@ func ExampleDB_Save() {
 
 func ExampleDB_One() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var user User
 
 	err := db.One("Email", "john@provider.com", &user)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// also works on unindexed fields
 	err = db.One("Name", "John", &user)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -88,12 +84,11 @@ func ExampleDB_One() {
 
 func ExampleDB_Find() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var users []User
 	err := db.Find("Group", "staff", &users)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -106,12 +101,11 @@ func ExampleDB_Find() {
 
 func ExampleDB_All() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var users []User
 	err := db.All(&users)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -124,12 +118,11 @@ func ExampleDB_All() {
 
 func ExampleDB_AllByIndex() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var users []User
 	err := db.AllByIndex("CreatedAt", &users)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -142,12 +135,11 @@ func ExampleDB_AllByIndex() {
 
 func ExampleDB_Range() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var users []User
 	err := db.Range("Age", 21, 22, &users)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -160,12 +152,11 @@ func ExampleDB_Range() {
 
 func ExampleLimit() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var users []User
 	err := db.All(&users, storm.Limit(2))
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -178,12 +169,11 @@ func ExampleLimit() {
 
 func ExampleSkip() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var users []User
 	err := db.All(&users, storm.Skip(1))
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -195,16 +185,16 @@ func ExampleSkip() {
 }
 
 func ExampleUseDB() {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 
-	bDB, err := bolt.Open(filepath.Join(dir, "bolt.db"), 0600, &bolt.Options{Timeout: 10 * time.Second})
+	bDB, err := bolt.Open(filepath.Join(dir, "bolt.db"), 0o600, &bolt.Options{Timeout: 10 * time.Second})
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	db, _ := storm.Open("", storm.UseDB(bDB))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	err = db.Save(&User{ID: 10})
 	if err != nil {
@@ -221,13 +211,12 @@ func ExampleUseDB() {
 
 func ExampleDB_DeleteStruct() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var user User
 
 	err := db.One("ID", 1, &user)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -241,27 +230,24 @@ func ExampleDB_DeleteStruct() {
 
 func ExampleDB_Begin() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	// both start out with a balance of 10000 cents
 	var account1, account2 Account
 
 	tx, err := db.Begin(true)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer tx.Rollback()
 
 	err = tx.One("ID", 1, &account1)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = tx.One("ID", 2, &account2)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -270,13 +256,11 @@ func ExampleDB_Begin() {
 	account2.Amount += 1000
 
 	err = tx.Save(&account1)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = tx.Save(&account2)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -286,13 +270,11 @@ func ExampleDB_Begin() {
 	var account1Reloaded, account2Reloaded Account
 
 	err = db.One("ID", 1, &account1Reloaded)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = db.One("ID", 2, &account2Reloaded)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -307,21 +289,19 @@ func ExampleDB_Begin() {
 
 func ExampleDB_From() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	// Create some sub buckets to partition the data.
 	privateNotes := db.From("notes", "private")
 	workNotes := db.From("notes", "work")
 
 	err := privateNotes.Save(&Note{ID: "private1", Text: "This is some private text."})
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = workNotes.Save(&Note{ID: "work1", Text: "Work related."})
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -334,13 +314,11 @@ func ExampleDB_From() {
 	fmt.Println(err)
 
 	err = workNotes.One("ID", "work1", &workNote)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = privateNotes.One("ID", "private1", &privateNote)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -351,13 +329,11 @@ func ExampleDB_From() {
 	// These can be nested further if needed:
 	personalNotes := privateNotes.From("personal")
 	err = personalNotes.Save(&Note{ID: "personal1", Text: "This is some very personal text."})
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = personalNotes.One("ID", "personal1", &personalNote)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -373,13 +349,12 @@ func ExampleDB_From() {
 
 func ExampleDB_Drop() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	var user User
 
 	err := db.One("Email", "john@provider.com", &user)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -399,8 +374,8 @@ func ExampleDB_Drop() {
 
 func ExampleNode_PrefixScan() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	// The PrefixScan method is available on both DB and Node.
 	// This example shows the usage on Node.
@@ -439,7 +414,6 @@ func ExampleNode_PrefixScan() {
 	fmt.Println("Bucket", nodes[2].Bucket()[1])
 
 	count, err := march.Count(&Note{})
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -447,17 +421,16 @@ func ExampleNode_PrefixScan() {
 	fmt.Println("Notes in March:", count)
 
 	// Output:
-	//Note buckets in 2016: 12
-	//Bucket 201603
-	//Bucket 201603
-	//Notes in March: 3
-
+	// Note buckets in 2016: 12
+	// Bucket 201603
+	// Bucket 201603
+	// Notes in March: 3
 }
 
 func ExampleNode_RangeScan() {
 	dir, db := prepareDB()
-	defer os.RemoveAll(dir)
-	defer db.Close()
+	defer func() { _ = os.RemoveAll(dir) }()
+	defer func() { _ = db.Close() }()
 
 	// The RangeScan method is available on both DB and Node.
 	// This example shows the usage on Node.
@@ -467,7 +440,7 @@ func ExampleNode_RangeScan() {
 	// Partition the notes in one bucket per month.
 	for i := 2013; i <= 2016; i++ {
 		for j := 1; j <= 12; j++ {
-			for k := 0; k < 3; k++ {
+			for k := range 3 {
 				// Must left-pad the month so it is sortable.
 				bucket := notes.From(fmt.Sprintf("%d%02d", i, j))
 				noteID := fmt.Sprintf("%d-%d", j, k)
@@ -484,7 +457,6 @@ func ExampleNode_RangeScan() {
 	fmt.Println("Note buckets in first half of 2014:", len(nodes))
 
 	notesCount, err := nodes[0].Count(&Note{})
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -516,7 +488,7 @@ type Note struct {
 }
 
 func prepareDB() (string, *storm.DB) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
 
 	for i, name := range []string{"John", "Eric", "Dilbert"} {
@@ -529,17 +501,15 @@ func prepareDB() (string, *storm.DB) {
 			CreatedAt: time.Now(),
 		}
 		err := db.Save(&user)
-
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	for i := int64(0); i < 10; i++ {
+	for range int64(10) {
 		account := Account{Amount: 10000}
 
 		err := db.Save(&account)
-
 		if err != nil {
 			log.Fatal(err)
 		}

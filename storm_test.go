@@ -3,7 +3,6 @@ package storm
 import (
 	"bytes"
 	"encoding/binary"
-	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
@@ -11,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/asdine/storm/v3/codec/json"
-	bolt "go.etcd.io/bbolt"
 	"github.com/stretchr/testify/require"
+	"github.com/vansante/storm/v3/codec/json"
+	bolt "go.etcd.io/bbolt"
 )
 
 func TestNewStorm(t *testing.T) {
@@ -22,13 +21,13 @@ func TestNewStorm(t *testing.T) {
 	require.Error(t, err)
 	require.Nil(t, db)
 
-	dir, err := ioutil.TempDir(os.TempDir(), "storm")
+	dir, err := os.MkdirTemp(os.TempDir(), "storm")
 	require.NoError(t, err)
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 
 	file := filepath.Join(dir, "storm.db")
 	db, err = Open(file)
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	require.Implements(t, (*Node)(nil), db)
 
@@ -43,11 +42,11 @@ func TestNewStorm(t *testing.T) {
 }
 
 func TestNewStormWithStormOptions(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 
 	dc := new(dummyCodec)
-	db1, _ := Open(filepath.Join(dir, "storm1.db"), BoltOptions(0660, &bolt.Options{Timeout: 10 * time.Second}), Codec(dc), Root("a", "b"))
+	db1, _ := Open(filepath.Join(dir, "storm1.db"), BoltOptions(0o660, &bolt.Options{Timeout: 10 * time.Second}), Codec(dc), Root("a", "b"))
 	require.Equal(t, dc, db1.Codec())
 	require.Equal(t, []string{"a", "b"}, db1.Node.(*node).rootBucket)
 
@@ -59,8 +58,8 @@ func TestNewStormWithStormOptions(t *testing.T) {
 }
 
 func TestNewStormWithBatch(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 
 	db1, _ := Open(filepath.Join(dir, "storm1.db"), Batch())
 	defer db1.Close()
@@ -79,9 +78,9 @@ func TestNewStormWithBatch(t *testing.T) {
 }
 
 func TestBoltDB(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
-	bDB, err := bolt.Open(filepath.Join(dir, "bolt.db"), 0600, &bolt.Options{Timeout: 10 * time.Second})
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
+	bDB, err := bolt.Open(filepath.Join(dir, "bolt.db"), 0o600, &bolt.Options{Timeout: 10 * time.Second})
 	require.NoError(t, err)
 	// no need to close bolt.DB Storm will take care of it
 	sDB, err := Open("my.db", UseDB(bDB))
@@ -93,11 +92,11 @@ func TestBoltDB(t *testing.T) {
 
 type dummyCodec int
 
-func (c dummyCodec) Marshal(v interface{}) ([]byte, error) {
+func (c dummyCodec) Marshal(_ any) ([]byte, error) {
 	return []byte("dummy"), nil
 }
 
-func (c dummyCodec) Unmarshal(b []byte, v interface{}) error {
+func (c dummyCodec) Unmarshal(_ []byte, _ any) error {
 	return nil
 }
 
@@ -130,7 +129,7 @@ func TestToBytes(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, `{"ID":10,"Name":"John"}`, string(b))
 
-	tests := map[interface{}]interface{}{
+	tests := map[any]any{
 		int(-math.MaxInt64):    int64(-math.MaxInt64),
 		int(math.MaxInt64):     int64(math.MaxInt64),
 		int8(-math.MaxInt8):    int8(-math.MaxInt8),
@@ -159,7 +158,7 @@ func TestToBytes(t *testing.T) {
 }
 
 func createDB(t errorHandler, opts ...func(*Options) error) (*DB, func()) {
-	dir, err := ioutil.TempDir(os.TempDir(), "storm")
+	dir, err := os.MkdirTemp(os.TempDir(), "storm")
 	if err != nil {
 		t.Error(err)
 	}
@@ -175,5 +174,5 @@ func createDB(t errorHandler, opts ...func(*Options) error) (*DB, func()) {
 }
 
 type errorHandler interface {
-	Error(args ...interface{})
+	Error(args ...any)
 }

@@ -1,11 +1,13 @@
 package storm
 
 import (
+	"errors"
 	"reflect"
 	"sort"
 	"time"
-	"github.com/asdine/storm/v3/index"
-	"github.com/asdine/storm/v3/q"
+
+	"github.com/vansante/storm/v3/index"
+	"github.com/vansante/storm/v3/q"
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -147,9 +149,8 @@ func (s *sorter) compareValue(left reflect.Value, right reflect.Value) int {
 				if lok && rok {
 					if lt.Before(rt) {
 						return -1
-					} else {
-						return 1
 					}
+					return 1
 				}
 			}
 		}
@@ -230,14 +231,8 @@ func (s *sorter) flush() error {
 			ssink.reset()
 			return s.sink.flush()
 		}
-		leftBound := s.skip
-		if leftBound < 0 {
-			leftBound = 0
-		}
-		limit := s.limit
-		if s.limit < 0 {
-			limit = 0
-		}
+		leftBound := max(s.skip, 0)
+		limit := max(s.limit, 0)
 
 		rightBound := leftBound + limit
 		if rightBound > ssink.slice().Len() || rightBound == leftBound {
@@ -274,7 +269,6 @@ func (s *sorter) Len() int {
 		return ssink.slice().Len()
 	}
 	return len(s.list)
-
 }
 
 func (s *sorter) Less(i, j int) bool {
@@ -308,17 +302,17 @@ type sliceSink interface {
 	reset()
 }
 
-func newListSink(node Node, to interface{}) (*listSink, error) {
+func newListSink(node Node, to any) (*listSink, error) {
 	ref := reflect.ValueOf(to)
 
-	if ref.Kind() != reflect.Ptr || reflect.Indirect(ref).Kind() != reflect.Slice {
+	if ref.Kind() != reflect.Pointer || reflect.Indirect(ref).Kind() != reflect.Slice {
 		return nil, ErrSlicePtrNeeded
 	}
 
 	sliceType := reflect.Indirect(ref).Type()
 	elemType := sliceType.Elem()
 
-	if elemType.Kind() == reflect.Ptr {
+	if elemType.Kind() == reflect.Pointer {
 		elemType = elemType.Elem()
 	}
 
@@ -329,7 +323,7 @@ func newListSink(node Node, to interface{}) (*listSink, error) {
 	return &listSink{
 		node:     node,
 		ref:      ref,
-		isPtr:    sliceType.Elem().Kind() == reflect.Ptr,
+		isPtr:    sliceType.Elem().Kind() == reflect.Pointer,
 		elemType: elemType,
 		name:     elemType.Name(),
 		results:  reflect.MakeSlice(reflect.Indirect(ref).Type(), 0, 0),
@@ -396,10 +390,10 @@ func (l *listSink) readOnly() bool {
 	return true
 }
 
-func newFirstSink(node Node, to interface{}) (*firstSink, error) {
+func newFirstSink(node Node, to any) (*firstSink, error) {
 	ref := reflect.ValueOf(to)
 
-	if !ref.IsValid() || ref.Kind() != reflect.Ptr || ref.Elem().Kind() != reflect.Struct {
+	if !ref.IsValid() || ref.Kind() != reflect.Pointer || ref.Elem().Kind() != reflect.Struct {
 		return nil, ErrStructPtrNeeded
 	}
 
@@ -441,10 +435,10 @@ func (f *firstSink) readOnly() bool {
 	return true
 }
 
-func newDeleteSink(node Node, kind interface{}) (*deleteSink, error) {
+func newDeleteSink(node Node, kind any) (*deleteSink, error) {
 	ref := reflect.ValueOf(kind)
 
-	if !ref.IsValid() || ref.Kind() != reflect.Ptr || ref.Elem().Kind() != reflect.Struct {
+	if !ref.IsValid() || ref.Kind() != reflect.Pointer || ref.Elem().Kind() != reflect.Struct {
 		return nil, ErrStructPtrNeeded
 	}
 
@@ -485,7 +479,7 @@ func (d *deleteSink) add(i *item) error {
 
 		err = idx.RemoveID(i.k)
 		if err != nil {
-			if err == index.ErrNotFound {
+			if errors.Is(err, index.ErrNotFound) {
 				return ErrNotFound
 			}
 			return err
@@ -508,10 +502,10 @@ func (d *deleteSink) readOnly() bool {
 	return false
 }
 
-func newCountSink(node Node, kind interface{}) (*countSink, error) {
+func newCountSink(node Node, kind any) (*countSink, error) {
 	ref := reflect.ValueOf(kind)
 
-	if !ref.IsValid() || ref.Kind() != reflect.Ptr || ref.Elem().Kind() != reflect.Struct {
+	if !ref.IsValid() || ref.Kind() != reflect.Pointer || ref.Elem().Kind() != reflect.Struct {
 		return nil, ErrStructPtrNeeded
 	}
 
@@ -535,7 +529,7 @@ func (c *countSink) bucketName() string {
 	return reflect.Indirect(c.ref).Type().Name()
 }
 
-func (c *countSink) add(i *item) error {
+func (c *countSink) add(_ *item) error {
 	c.counter++
 	return nil
 }
@@ -582,10 +576,10 @@ func (r *rawSink) readOnly() bool {
 	return true
 }
 
-func newEachSink(to interface{}) (*eachSink, error) {
+func newEachSink(to any) (*eachSink, error) {
 	ref := reflect.ValueOf(to)
 
-	if !ref.IsValid() || ref.Kind() != reflect.Ptr || ref.Elem().Kind() != reflect.Struct {
+	if !ref.IsValid() || ref.Kind() != reflect.Pointer || ref.Elem().Kind() != reflect.Struct {
 		return nil, ErrStructPtrNeeded
 	}
 
@@ -596,7 +590,7 @@ func newEachSink(to interface{}) (*eachSink, error) {
 
 type eachSink struct {
 	ref    reflect.Value
-	execFn func(interface{}) error
+	execFn func(any) error
 }
 
 func (e *eachSink) elem() reflect.Value {

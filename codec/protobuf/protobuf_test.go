@@ -1,26 +1,25 @@
 package protobuf
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/asdine/storm/v3"
-	"github.com/asdine/storm/v3/codec/internal"
 	"github.com/stretchr/testify/require"
+	"github.com/vansante/storm/v3"
+	"github.com/vansante/storm/v3/codec/internal"
 )
 
 func TestProtobuf(t *testing.T) {
-	u1 := SimpleUser{Id: 1, Name: "John"}
+	u1 := SimpleUser{Id: 1, Name: "John", Age: 42}
 	u2 := SimpleUser{}
 	internal.RoundtripTester(t, Codec, &u1, &u2)
 	require.True(t, u1.Id == u2.Id)
 }
 
 func TestSave(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"), storm.Codec(Codec))
 	u1 := SimpleUser{Id: 1, Name: "John"}
 	err := db.Save(&u1)
@@ -32,8 +31,8 @@ func TestSave(t *testing.T) {
 }
 
 func TestGetSet(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"), storm.Codec(Codec))
 	err := db.Set("bucket", "key", "value")
 	require.NoError(t, err)

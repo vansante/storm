@@ -1,7 +1,10 @@
 # Storm
 
-[![Build Status](https://travis-ci.org/asdine/storm.svg)](https://travis-ci.org/asdine/storm)
-[![GoDoc](https://godoc.org/github.com/asdine/storm?status.svg)](https://godoc.org/github.com/asdine/storm)
+## Fork notification
+
+This is a fork of [Storm](https://github.com/asdine/storm) that modernizes the dependencies a bit. It drops support for the some codecs to keep the dependency list small.
+
+## Storm
 
 Storm is a simple and powerful toolkit for [BoltDB](https://github.com/coreos/bbolt). Basically, Storm provides indexes, a wide range of methods to store and fetch data, an advanced query system, and much more.
 
@@ -49,13 +52,13 @@ _For extended queries and support for [Badger](https://github.com/dgraph-io/badg
 ## Getting Started
 
 ```bash
-GO111MODULE=on go get -u github.com/asdine/storm/v3
+GO111MODULE=on go get -u github.com/vansante/storm/v3
 ```
 
 ## Import Storm
 
 ```go
-import "github.com/asdine/storm/v3"
+import "github.com/vansante/storm/v3"
 ```
 
 ## Open a database
@@ -472,12 +475,12 @@ These can be used by importing the relevant package and use that codec to config
 
 ```go
 import (
-  "github.com/asdine/storm/v3"
-  "github.com/asdine/storm/v3/codec/gob"
-  "github.com/asdine/storm/v3/codec/json"
-  "github.com/asdine/storm/v3/codec/sereal"
-  "github.com/asdine/storm/v3/codec/protobuf"
-  "github.com/asdine/storm/v3/codec/msgpack"
+  "github.com/vansante/storm/v3"
+  "github.com/vansante/storm/v3/codec/gob"
+  "github.com/vansante/storm/v3/codec/json"
+  "github.com/vansante/storm/v3/codec/sereal"
+  "github.com/vansante/storm/v3/codec/protobuf"
+  "github.com/vansante/storm/v3/codec/msgpack"
 )
 
 var gobDb, _ = storm.Open("gob.db", storm.Codec(gob.Codec))

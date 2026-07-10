@@ -88,7 +88,6 @@ func TestRangeScan(t *testing.T) {
 }
 
 func doTestRangeScan(t *testing.T, node Node) {
-
 	for y := 2012; y <= 2016; y++ {
 		for m := 1; m <= 12; m++ {
 			n := node.From(fmt.Sprintf("%d%02d", y, m))

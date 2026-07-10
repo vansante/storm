@@ -1,12 +1,15 @@
+// Package storm is a wrapper around bbolt that provides indexed key/value storage
+// with support for typed buckets, queries and transactions.
 package storm
 
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"time"
 
-	"github.com/asdine/storm/v3/codec"
-	"github.com/asdine/storm/v3/codec/json"
+	"github.com/vansante/storm/v3/codec"
+	"github.com/vansante/storm/v3/codec/json"
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -45,7 +48,7 @@ func Open(path string, stormOptions ...func(*Options) error) (*DB, error) {
 	}
 
 	if opts.boltMode == 0 {
-		opts.boltMode = 0600
+		opts.boltMode = 0o600
 	}
 
 	if opts.boltOptions == nil {
@@ -88,7 +91,7 @@ func (s *DB) Close() error {
 func (s *DB) checkVersion() error {
 	var v string
 	err := s.Get(dbinfo, "version", &v)
-	if err != nil && err != ErrNotFound {
+	if err != nil && !errors.Is(err, ErrNotFound) {
 		return err
 	}
 
@@ -102,7 +105,7 @@ func (s *DB) checkVersion() error {
 }
 
 // toBytes turns an interface into a slice of bytes
-func toBytes(key interface{}, codec codec.MarshalUnmarshaler) ([]byte, error) {
+func toBytes(key any, codec codec.MarshalUnmarshaler) ([]byte, error) {
 	if key == nil {
 		return nil, nil
 	}
@@ -122,7 +125,7 @@ func toBytes(key interface{}, codec codec.MarshalUnmarshaler) ([]byte, error) {
 	}
 }
 
-func numbertob(v interface{}) ([]byte, error) {
+func numbertob(v any) ([]byte, error) {
 	var buf bytes.Buffer
 	err := binary.Write(&buf, binary.BigEndian, v)
 	if err != nil {

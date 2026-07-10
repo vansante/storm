@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/asdine/storm/v3/codec/gob"
-	"github.com/asdine/storm/v3/codec/json"
-	"github.com/asdine/storm/v3/q"
 	"github.com/stretchr/testify/require"
+	"github.com/vansante/storm/v3/codec/gob"
+	"github.com/vansante/storm/v3/codec/json"
+	"github.com/vansante/storm/v3/q"
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -242,7 +242,7 @@ func TestSaveIndex(t *testing.T) {
 	name2 := "Jane"
 	name3 := "James"
 
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		u := IndexedNameUser{ID: i + 1}
 
 		if i%2 == 0 {
@@ -421,7 +421,7 @@ func TestSaveWithBatch(t *testing.T) {
 
 	var wg sync.WaitGroup
 
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
@@ -654,7 +654,7 @@ func TestDeleteStruct(t *testing.T) {
 	require.Equal(t, ErrStructPtrNeeded, err)
 
 	var users []User
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		user := User{Name: "John", ID: i + 1, Slug: fmt.Sprintf("John%d", i+1), DateOfBirth: time.Now().Add(-time.Duration(i*10) * time.Minute)}
 		err = db.Save(&user)
 		require.NoError(t, err)

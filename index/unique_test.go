@@ -2,23 +2,22 @@ package index_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/asdine/storm/v3"
-	"github.com/asdine/storm/v3/codec/gob"
-	"github.com/asdine/storm/v3/index"
-	bolt "go.etcd.io/bbolt"
 	"github.com/stretchr/testify/require"
+	"github.com/vansante/storm/v3"
+	"github.com/vansante/storm/v3/codec/gob"
+	"github.com/vansante/storm/v3/index"
+	bolt "go.etcd.io/bbolt"
 )
 
 func TestUniqueIndex(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	err := db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
@@ -120,10 +119,10 @@ func TestUniqueIndex(t *testing.T) {
 }
 
 func TestUniqueIndexRange(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))
@@ -138,43 +137,43 @@ func TestUniqueIndexRange(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		min, _ := gob.Codec.Marshal(3)
-		max, _ := gob.Codec.Marshal(5)
-		list, err := idx.Range(min, max, nil)
+		minVal, _ := gob.Codec.Marshal(3)
+		maxVal, _ := gob.Codec.Marshal(5)
+		list, err := idx.Range(minVal, maxVal, nil)
 		require.Len(t, list, 3)
 		require.NoError(t, err)
 		assertEncodedIntListEqual(t, []int{3, 4, 5}, list)
 
-		min, _ = gob.Codec.Marshal(11)
-		max, _ = gob.Codec.Marshal(20)
-		list, err = idx.Range(min, max, nil)
+		minVal, _ = gob.Codec.Marshal(11)
+		maxVal, _ = gob.Codec.Marshal(20)
+		list, err = idx.Range(minVal, maxVal, nil)
 		require.Len(t, list, 0)
 		require.NoError(t, err)
 
-		min, _ = gob.Codec.Marshal(7)
-		max, _ = gob.Codec.Marshal(2)
-		list, err = idx.Range(min, max, nil)
+		minVal, _ = gob.Codec.Marshal(7)
+		maxVal, _ = gob.Codec.Marshal(2)
+		list, err = idx.Range(minVal, maxVal, nil)
 		require.Len(t, list, 0)
 		require.NoError(t, err)
 
-		min, _ = gob.Codec.Marshal(-5)
-		max, _ = gob.Codec.Marshal(2)
-		list, err = idx.Range(min, max, nil)
+		minVal, _ = gob.Codec.Marshal(-5)
+		maxVal, _ = gob.Codec.Marshal(2)
+		list, err = idx.Range(minVal, maxVal, nil)
 		require.Len(t, list, 0)
 		require.NoError(t, err)
 
-		min, _ = gob.Codec.Marshal(3)
-		max, _ = gob.Codec.Marshal(7)
+		minVal, _ = gob.Codec.Marshal(3)
+		maxVal, _ = gob.Codec.Marshal(7)
 		opts := index.NewOptions()
 		opts.Skip = 2
-		list, err = idx.Range(min, max, opts)
+		list, err = idx.Range(minVal, maxVal, opts)
 		require.Len(t, list, 3)
 		require.NoError(t, err)
 		assertEncodedIntListEqual(t, []int{5, 6, 7}, list)
 
 		opts = index.NewOptions()
 		opts.Limit = 2
-		list, err = idx.Range(min, max, opts)
+		list, err = idx.Range(minVal, maxVal, opts)
 		require.Len(t, list, 2)
 		require.NoError(t, err)
 		assertEncodedIntListEqual(t, []int{3, 4}, list)
@@ -183,7 +182,7 @@ func TestUniqueIndexRange(t *testing.T) {
 		opts.Reverse = true
 		opts.Skip = 2
 		opts.Limit = 2
-		list, err = idx.Range(min, max, opts)
+		list, err = idx.Range(minVal, maxVal, opts)
 		require.Len(t, list, 2)
 		require.NoError(t, err)
 		assertEncodedIntListEqual(t, []int{5, 4}, list)
@@ -192,10 +191,10 @@ func TestUniqueIndexRange(t *testing.T) {
 }
 
 func TestUniqueIndexPrefix(t *testing.T) {
-	dir, _ := ioutil.TempDir(os.TempDir(), "storm")
-	defer os.RemoveAll(dir)
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
 	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	db.Bolt.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucket([]byte("test"))

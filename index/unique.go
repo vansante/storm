@@ -3,7 +3,7 @@ package index
 import (
 	"bytes"
 
-	"github.com/asdine/storm/v3/internal"
+	"github.com/vansante/storm/v3/internal"
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -35,10 +35,10 @@ type UniqueIndex struct {
 
 // Add a value to the unique index
 func (idx *UniqueIndex) Add(value []byte, targetID []byte) error {
-	if value == nil || len(value) == 0 {
+	if len(value) == 0 {
 		return ErrNilParam
 	}
-	if targetID == nil || len(targetID) == 0 {
+	if len(targetID) == 0 {
 		return ErrNilParam
 	}
 
@@ -76,7 +76,7 @@ func (idx *UniqueIndex) Get(value []byte) []byte {
 }
 
 // All returns all the ids corresponding to the given value
-func (idx *UniqueIndex) All(value []byte, opts *Options) ([][]byte, error) {
+func (idx *UniqueIndex) All(value []byte, _ *Options) ([][]byte, error) {
 	id := idx.IndexBucket.Get(value)
 	if id != nil {
 		return [][]byte{id}, nil
@@ -111,14 +111,14 @@ func (idx *UniqueIndex) AllRecords(opts *Options) ([][]byte, error) {
 }
 
 // Range returns the ids corresponding to the given range of values
-func (idx *UniqueIndex) Range(min []byte, max []byte, opts *Options) ([][]byte, error) {
+func (idx *UniqueIndex) Range(minVal []byte, maxVal []byte, opts *Options) ([][]byte, error) {
 	var list [][]byte
 
 	c := internal.RangeCursor{
 		C:       idx.IndexBucket.Cursor(),
 		Reverse: opts != nil && opts.Reverse,
-		Min:     min,
-		Max:     max,
+		Min:     minVal,
+		Max:     maxVal,
 		CompareFn: func(val, limit []byte) int {
 			return bytes.Compare(val, limit)
 		},
@@ -170,14 +170,4 @@ func (idx *UniqueIndex) Prefix(prefix []byte, opts *Options) ([][]byte, error) {
 		list = append(list, ident)
 	}
 	return list, nil
-}
-
-// first returns the first ID of this index
-func (idx *UniqueIndex) first() []byte {
-	c := idx.IndexBucket.Cursor()
-
-	for val, ident := c.First(); val != nil; val, ident = c.Next() {
-		return ident
-	}
-	return nil
 }

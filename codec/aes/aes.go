@@ -1,3 +1,4 @@
+// Package aes provides a codec that encrypts data using AES-GCM.
 package aes
 
 import (
@@ -7,7 +8,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/asdine/storm/v3/codec"
+	"github.com/vansante/storm/v3/codec"
 )
 
 const name = "aes-"

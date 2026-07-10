@@ -2,18 +2,15 @@
 package protobuf
 
 import (
-	"errors"
-
-	"github.com/asdine/storm/v3/codec/json"
-	"github.com/golang/protobuf/proto"
+	"github.com/vansante/storm/v3/codec/json"
+	"google.golang.org/protobuf/proto"
 )
 
 const name = "protobuf"
 
 // More details on Protocol Buffers https://github.com/golang/protobuf
 var (
-	Codec                       = new(protobufCodec)
-	errNotProtocolBufferMessage = errors.New("value isn't a Protocol Buffers Message")
+	Codec = new(protobufCodec)
 )
 
 type protobufCodec int
