@@ -79,24 +79,29 @@ func (idx *ListIndex) Add(newValue []byte, targetID []byte) error {
 
 // Remove a value from the unique index
 func (idx *ListIndex) Remove(value []byte) error {
-	var err error
-	var keys [][]byte
+	type entry struct{ key, id []byte }
+	var entries []entry
 
 	c := idx.IndexBucket.Cursor()
 	prefix := generatePrefix(value)
 
-	for k, _ := c.Seek(prefix); bytes.HasPrefix(k, prefix); k, _ = c.Next() {
-		keys = append(keys, k)
+	for k, id := c.Seek(prefix); bytes.HasPrefix(k, prefix); k, id = c.Next() {
+		entries = append(entries, entry{
+			key: append([]byte(nil), k...),
+			id:  append([]byte(nil), id...),
+		})
 	}
 
-	for _, k := range keys {
-		err = idx.IndexBucket.Delete(k)
-		if err != nil {
+	for _, e := range entries {
+		if err := idx.IndexBucket.Delete(e.key); err != nil {
+			return err
+		}
+		if err := idx.IDs.Remove(e.id); err != nil {
 			return err
 		}
 	}
 
-	return idx.IDs.RemoveID(value)
+	return nil
 }
 
 // RemoveID removes an ID from the list index
