@@ -498,3 +498,147 @@ func countItems(_ *testing.T, bucket *bolt.Bucket) int {
 
 	return count
 }
+
+// countIDsBucketItems returns the number of entries in the nested "storm__ids"
+// sub-bucket of a ListIndex, i.e. the reverse targetID -> compositeKey mapping.
+func countIDsBucketItems(t *testing.T, idx *index.ListIndex) int {
+	t.Helper()
+	c := idx.IDs.IndexBucket.Cursor()
+	count := 0
+	for k, _ := c.First(); k != nil; k, _ = c.Next() {
+		count++
+	}
+	return count
+}
+
+func TestListIndexRemoveValueCleansIDsBucket(t *testing.T) {
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
+	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
+	defer func() { _ = db.Close() }()
+
+	err := db.Bolt.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucket([]byte("test"))
+		require.NoError(t, err)
+
+		idx, err := index.NewListIndex(b, []byte("lindex1"))
+		require.NoError(t, err)
+
+		require.NoError(t, idx.Add([]byte("hey"), []byte("id1")))
+		require.NoError(t, idx.Add([]byte("hey"), []byte("id2")))
+		require.NoError(t, idx.Add([]byte("hey"), []byte("id3")))
+		require.NoError(t, idx.Add([]byte("bye"), []byte("id4")))
+
+		require.Equal(t, 4, countItems(t, idx.IndexBucket))
+		require.Equal(t, 4, countIDsBucketItems(t, idx))
+
+		// Remove all IDs mapped to "hey".
+		require.NoError(t, idx.Remove([]byte("hey")))
+
+		// The visible index entries were removed properly.
+		require.Equal(t, 1, countItems(t, idx.IndexBucket))
+
+		// But the storm__ids bucket should also drop the three entries for
+		// id1, id2, id3. Only id4 (mapped to "bye") should remain.
+		require.Equal(t, 1, countIDsBucketItems(t, idx),
+			"storm__ids sub-bucket should be cleaned up when Remove(value) drops entries")
+
+		// Re-adding one of the removed IDs to a new value must not leave any
+		// stale composite key behind either.
+		require.NoError(t, idx.Add([]byte("new"), []byte("id1")))
+		require.Equal(t, 2, countItems(t, idx.IndexBucket))
+		require.Equal(t, 2, countIDsBucketItems(t, idx))
+		return nil
+	})
+	require.NoError(t, err)
+}
+
+func TestListIndexRemoveIDCleansIDsBucket(t *testing.T) {
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
+	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
+	defer func() { _ = db.Close() }()
+
+	err := db.Bolt.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucket([]byte("test"))
+		require.NoError(t, err)
+
+		idx, err := index.NewListIndex(b, []byte("lindex1"))
+		require.NoError(t, err)
+
+		require.NoError(t, idx.Add([]byte("hey"), []byte("id1")))
+		require.NoError(t, idx.Add([]byte("hey"), []byte("id2")))
+		require.NoError(t, idx.Add([]byte("bye"), []byte("id3")))
+		require.Equal(t, 3, countItems(t, idx.IndexBucket))
+		require.Equal(t, 3, countIDsBucketItems(t, idx))
+
+		require.NoError(t, idx.RemoveID([]byte("id1")))
+		require.Equal(t, 2, countItems(t, idx.IndexBucket))
+		require.Equal(t, 2, countIDsBucketItems(t, idx))
+
+		require.NoError(t, idx.RemoveID([]byte("id2")))
+		require.NoError(t, idx.RemoveID([]byte("id3")))
+		require.Equal(t, 0, countItems(t, idx.IndexBucket))
+		require.Equal(t, 0, countIDsBucketItems(t, idx))
+		return nil
+	})
+	require.NoError(t, err)
+}
+
+func TestListIndexAddOverwriteCleansIDsBucket(t *testing.T) {
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
+	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
+	defer func() { _ = db.Close() }()
+
+	err := db.Bolt.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucket([]byte("test"))
+		require.NoError(t, err)
+
+		idx, err := index.NewListIndex(b, []byte("lindex1"))
+		require.NoError(t, err)
+
+		require.NoError(t, idx.Add([]byte("hello"), []byte("id1")))
+		require.NoError(t, idx.Add([]byte("goodbye"), []byte("id1")))
+		require.NoError(t, idx.Add([]byte("hi"), []byte("id1")))
+
+		require.Equal(t, 1, countItems(t, idx.IndexBucket))
+		require.Equal(t, 1, countIDsBucketItems(t, idx))
+		return nil
+	})
+	require.NoError(t, err)
+}
+
+func TestListIndexRemoveValueSkipsIDsSubBucket(t *testing.T) {
+	dir, _ := os.MkdirTemp(os.TempDir(), "storm")
+	defer func() { _ = os.RemoveAll(dir) }()
+	db, _ := storm.Open(filepath.Join(dir, "storm.db"))
+	defer func() { _ = db.Close() }()
+
+	err := db.Bolt.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucket([]byte("test"))
+		require.NoError(t, err)
+
+		idx, err := index.NewListIndex(b, []byte("lindex1"))
+		require.NoError(t, err)
+
+		// "storm" collides with generatePrefix -> "storm__", which is also the
+		// prefix of the nested "storm__ids" sub-bucket key. Remove must skip
+		// that sub-bucket entry rather than trying to Delete it.
+		require.NoError(t, idx.Add([]byte("storm"), []byte("id1")))
+		require.NoError(t, idx.Add([]byte("storm"), []byte("id2")))
+		require.NoError(t, idx.Add([]byte("other"), []byte("id3")))
+
+		require.NoError(t, idx.Remove([]byte("storm")))
+		require.Equal(t, 1, countItems(t, idx.IndexBucket))
+		require.Equal(t, 1, countIDsBucketItems(t, idx))
+
+		// The IDs sub-bucket must still exist and be usable.
+		require.NoError(t, idx.Add([]byte("storm"), []byte("id4")))
+		require.Equal(t, 2, countItems(t, idx.IndexBucket))
+		require.Equal(t, 2, countIDsBucketItems(t, idx))
+		return nil
+	})
+	require.NoError(t, err)
+}
+
