@@ -77,7 +77,7 @@ func (idx *ListIndex) Add(newValue []byte, targetID []byte) error {
 	return idx.IndexBucket.Put(key, targetID)
 }
 
-// Remove a value from the unique index
+// Remove a value from the list index
 func (idx *ListIndex) Remove(value []byte) error {
 	type entry struct{ key, id []byte }
 	var entries []entry
@@ -86,6 +86,9 @@ func (idx *ListIndex) Remove(value []byte) error {
 	prefix := generatePrefix(value)
 
 	for k, id := c.Seek(prefix); bytes.HasPrefix(k, prefix); k, id = c.Next() {
+		if id == nil || bytes.Equal(k, []byte("storm__ids")) {
+			continue
+		}
 		entries = append(entries, entry{
 			key: append([]byte(nil), k...),
 			id:  append([]byte(nil), id...),
